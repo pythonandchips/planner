@@ -6,3 +6,4 @@
 - `planner new` should also create `ITERATION-001.md` in the new plan folder.
 - Validate the file name passed to `run` (`PLAN-*.md`).
 - Find the project root from the git top-level instead of cwd.
+- After `planner run`, check that the agent followed the plan (for example, compare the diff against the plan's file list).

@@ -2,8 +2,10 @@
 
 module Planner
   module Commands
-    # Hands a plan file to the agent to implement.
+    # Wraps a plan file in the run prompt and hands it to the agent to implement.
     class Run
+      TEMPLATE = File.expand_path('../prompts/run.md.erb', __dir__)
+
       def initialize(context)
         @context = context
       end
@@ -15,11 +17,15 @@ module Planner
         file = args.first
         raise Error, "#{file} does not exist" unless File.file?(file)
 
-        prompt = File.read(file).sub(/\n+\z/, '')
-        @context.agent.run(prompt, model:)
+        @context.agent.run(prompt(file), model:)
       end
 
       private
+
+      def prompt(file)
+        plan = File.read(file).sub(/\n+\z/, '')
+        ERB.new(File.read(TEMPLATE)).result_with_hash(plan_file: file, plan:)
+      end
 
       # Removes the options from args and returns the chosen model.
       def parse(args)

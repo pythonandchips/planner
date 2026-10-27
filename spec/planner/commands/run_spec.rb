@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Planner::Commands::Run do
+RSpec.describe Planner::Commands::Run, :aggregate_failures do
   subject(:command) { described_class.new(context) }
 
   let(:agent) { FakeAgent.new }
@@ -11,7 +11,40 @@ RSpec.describe Planner::Commands::Run do
   it "uses the agent's default model" do
     command.call(['PLAN-001.md'])
 
-    expect(agent.calls).to eq([[:run, "line one\n\nline two", 'default-model']])
+    expect(agent.calls.size).to eq(1)
+    expect(agent.calls.first.first).to eq(:run)
+    expect(agent.calls.first.last).to eq('default-model')
+  end
+
+  describe 'the prompt' do
+    let(:prompt) do
+      command.call(['PLAN-001.md'])
+      agent.calls.first[1]
+    end
+
+    it 'starts with the run heading' do
+      expect(prompt).to start_with("# Run Plan\n")
+    end
+
+    it 'names the plan file and says to follow it exactly' do
+      expect(prompt).to include('Implement the plan `PLAN-001.md`', 'Follow it exactly.')
+    end
+
+    it 'takes the literal reading and does not commit when stopping' do
+      expect(prompt).to include("take the\n   most literal reading", 'Do not commit.')
+    end
+
+    it 'asks for a plain English report of what is left' do
+      expect(prompt).to include('what is still left to do')
+    end
+
+    it 'ends with the plan, keeping inner newlines and stripping trailing ones' do
+      expect(prompt).to end_with("## Plan\n\nline one\n\nline two\n")
+    end
+
+    it 'leaves no ERB tags behind' do
+      expect(prompt).not_to include('<%')
+    end
   end
 
   [%w[-m x], %w[--model x], %w[--model=x], %w[-mx]].each do |flags|
