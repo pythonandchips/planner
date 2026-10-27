@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(pwd)"
+PLANS_DIR="$ROOT/docs/plans"
+
+usage() {
+  echo "usage: plans new <given-name>" >&2
+  echo "       plans plan <iteration-file>" >&2
+  echo "       plans run [--model <model>] <plan-file>" >&2
+}
+
+slugify() {
+  echo "$1" |
+    tr '[:upper:]' '[:lower:]' |
+    sed -e 's/[^a-z0-9]\{1,\}/-/g' -e 's/^-//' -e 's/-$//'
+}
+
+cmd_new() {
+  local name slug dir
+  name="${1:-}"
+  if [ -z "$name" ]; then
+    usage
+    exit 1
+  fi
+
+  slug="$(slugify "$name")"
+  if [ -z "$slug" ]; then
+    echo "[plans] '$name' does not contain any usable characters" >&2
+    exit 1
+  fi
+
+  dir="$PLANS_DIR/$(date +%Y%m%d%H%M)-$slug"
+  if [ -d "$dir" ]; then
+    echo "[plans] $dir already exists" >&2
+    exit 1
+  fi
+
+  mkdir -p "$dir"
+  echo "${dir#"$ROOT/"}"
+}
+
+cmd_plan() {
+  local file
+  file="${1:-}"
+  if [ -z "$file" ]; then
+    usage
+    exit 1
+  fi
+
+  if [ ! -f "$file" ]; then
+    echo "[plans] $file does not exist" >&2
+    exit 1
+  fi
+
+  exec claude --model opus "/plan-from-iteration $file"
+}
+
+cmd_run() {
+  local file model
+  file=""
+  model="sonnet"
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -m | --model)
+        model="${2:-}"
+        if [ -z "$model" ]; then
+          usage
+          exit 1
+        fi
+        shift 2
+        ;;
+      *)
+        if [ -n "$file" ]; then
+          usage
+          exit 1
+        fi
+        file="$1"
+        shift
+        ;;
+    esac
+  done
+
+  if [ -z "$file" ]; then
+    usage
+    exit 1
+  fi
+
+  if [ ! -f "$file" ]; then
+    echo "[plans] $file does not exist" >&2
+    exit 1
+  fi
+
+  exec claude --model "$model" "$(cat "$file")"
+}
+
+case "${1:-}" in
+  new)
+    shift
+    cmd_new "$@"
+    ;;
+  plan)
+    shift
+    cmd_plan "$@"
+    ;;
+  run)
+    shift
+    cmd_run "$@"
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac

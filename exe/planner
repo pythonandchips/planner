@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'planner'
+
+context = Planner::Context.new(
+  root: Pathname.pwd,
+  agent: Planner::Agents::Claude.new,
+  stdout: $stdout,
+  clock: -> { Time.now }
+)
+exit Planner::CLI.new(context:).call(ARGV)
