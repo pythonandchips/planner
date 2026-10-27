@@ -12,8 +12,8 @@ module Planner
         @executor = executor
       end
 
-      def plan(iteration_file)
-        @executor.call('claude', '--model', PLAN_MODEL, "/plan-from-iteration #{iteration_file}")
+      def plan(prompt)
+        @executor.call('claude', '--model', PLAN_MODEL, prompt)
       end
 
       def run(prompt, model:)

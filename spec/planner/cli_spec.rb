@@ -27,8 +27,8 @@ RSpec.describe Planner::CLI, :aggregate_failures do
   end
 
   it 'prints the message and returns 1 when a command raises Error' do
-    expect(cli.call(['plan', 'missing.md'])).to eq(1)
-    expect(stderr.string).to eq("[planner] missing.md does not exist\n")
+    expect(cli.call(['plan', 'ITERATION-001.md'])).to eq(1)
+    expect(stderr.string).to eq("[planner] ITERATION-001.md does not exist\n")
   end
 
   it 'returns 0 on success' do

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'erb'
 require 'fileutils'
 require 'optparse'
 require 'pathname'

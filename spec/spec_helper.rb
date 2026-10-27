@@ -11,8 +11,8 @@ class FakeAgent
     @calls = []
   end
 
-  def plan(iteration_file)
-    @calls << [:plan, iteration_file]
+  def plan(prompt)
+    @calls << [:plan, prompt]
   end
 
   def run(prompt, model:)

@@ -5,10 +5,10 @@ RSpec.describe Planner::Agents::Claude do
 
   let(:calls) { [] }
 
-  it 'plans with opus via the plan-from-iteration skill' do
-    agent.plan('docs/ITERATION-001.md')
+  it 'plans with opus using the given prompt' do
+    agent.plan('do the plan')
 
-    expect(calls).to eq([['claude', '--model', 'opus', '/plan-from-iteration docs/ITERATION-001.md']])
+    expect(calls).to eq([['claude', '--model', 'opus', 'do the plan']])
   end
 
   it 'runs the prompt with the given model' do

@@ -1,0 +1,65 @@
+# Plan From Iteration
+
+Turn the requirements doc `<%= iteration_file %>` into an implementation plan
+`<%= plan_file %>`. Both live in the plan folder `<%= folder %>/`.
+
+## Steps
+
+1. **Read the whole folder, not just the one file.** Read `<%= iteration_file %>`,
+   plus every other `ITERATION-*.md` and `PLAN-*.md` already in `<%= folder %>/`. Earlier
+   plans record decisions that still apply. Treat them as established context, not
+   something to ask about again.
+2. **Resolve every open question before writing anything.** Do not assume a requirement,
+   guess at a default, or fill a gap silently. Read the iteration file and list every
+   decision point it leaves open, then ask the user about all of them together. Keep
+   iterating (ask follow-ups, refine, ask again) until nothing is left ambiguous. Only
+   once every question has an explicit answer do you move on to drafting the plan.
+3. **Write `<%= plan_file %>`.** Follow the structure below. Keep it concise and
+   unambiguous. A developer should be able to execute it without needing to ask a
+   follow-up question.
+4. **End the plan with a Commit section.** State exactly what to stage and give a
+   suggested commit message, with the instruction that the commit happens only after the
+   plan's change has actually been made (implemented and verified), never before.
+
+## Plan structure
+
+Match the convention already used by `PLAN-*.md` files elsewhere in `docs/plans/`:
+
+```markdown
+# PLAN-<N> — <short title>
+
+<One paragraph: what this change is and its scope.>
+
+## Decisions (resolved, do not revisit)
+
+| Decision | Choice |
+| --- | --- |
+| <each question you resolved with the user, one row per decision> | <the answer> |
+
+## Files to create / change
+
+<concrete file list or diff-shaped description>
+
+## Implementation
+
+<the plan itself, in as much concrete detail as the decisions support>
+
+## Verification
+
+<how to confirm the change works: tests to run, commands to execute>
+
+## Commit
+
+<what to stage and a suggested commit message, contingent on verification passing>
+```
+
+The "Decisions" table records every question you asked and how the user answered it.
+It lets a future iteration in the same folder skip asking again about things that are
+already settled.
+
+## Notes
+
+- Never make a decision on the user's behalf, even a small one. Surface it as a
+  question instead. This is the one rule these instructions exist to enforce.
+- Check sibling files in the folder for precedent before asking a question that was
+  already answered there.
