@@ -52,5 +52,29 @@ Write `<%= review_file %>` with these sections, in order:
 
 Write "None." under a findings section with nothing in it.
 
-When the file is written, give the user a short
-plain-English summary of the review here.
+## Summary for the user
+
+When the file is written, reply here with a plain-English
+summary in exactly this format:
+
+```
+Review written to `<%= review_file %>`.
+
+<% if lens -%>
+**Lens:** <the lens in one sentence>
+
+<% end -%>
+**Summary:** <one or two sentences>
+
+**High-confidence findings:**
+- <file:line where there is one>: <the finding in one line>
+
+**Lower-confidence concerns:**
+- <file:line where there is one>: <the concern in one line>
+
+**Top recommendations:**
+1. <the recommendation in one line>
+```
+
+List every finding and concern, one line each. Write
+"None." after a label with nothing under it.

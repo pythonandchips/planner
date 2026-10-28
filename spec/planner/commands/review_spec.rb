@@ -101,6 +101,18 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
       expect(prompt).not_to include('## Lens')
       expect(prompt).not_to include('<%')
     end
+
+    it 'has the summary format' do
+      expect(prompt).to include('## Summary for the user',
+                                "Review written to `docs/plans/x/REVIEW-001.md`.\n\n**Summary:**",
+                                '**High-confidence findings:**', '**Lower-confidence concerns:**',
+                                '**Top recommendations:**', '1. <the recommendation in one line>',
+                                'List every finding and concern, one line each.')
+    end
+
+    it 'has no lens line in the summary' do
+      expect(prompt).not_to include('**Lens:**')
+    end
   end
 
   describe 'the prompt with a lens' do
@@ -115,6 +127,12 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
 
       expect(prompt).to include('only through the lens below', "check security\n", '`## Lens`')
       expect(prompt).not_to include('Check that:')
+    end
+
+    it 'adds a lens line to the summary' do
+      expect(prompt_for('--lens', 'check security', plan))
+        .to include("Review written to `docs/plans/x/REVIEW-001.md`.\n\n" \
+                    "**Lens:** <the lens in one sentence>\n\n**Summary:**")
     end
 
     it 'accepts -l, --lens=, and a lens after the file' do
