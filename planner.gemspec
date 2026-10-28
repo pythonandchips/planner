@@ -14,7 +14,8 @@ Gem::Specification.new do |spec|
   spec.metadata['allowed_push_host'] = 'https://gems.invalid'
   spec.metadata['rubygems_mfa_required'] = 'true'
 
-  spec.files = Dir['lib/**/*.rb', 'lib/**/*.erb', 'exe/*', 'README.md']
+  spec.files = Dir['lib/**/*.rb', 'lib/**/*.erb', 'lib/planner/skills/**/*', 'exe/*', 'README.md']
+               .select { |path| File.file?(path) }
   spec.bindir = 'exe'
   spec.executables = ['planner']
   spec.require_paths = ['lib']

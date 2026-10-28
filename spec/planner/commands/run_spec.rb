@@ -4,7 +4,7 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
   subject(:command) { described_class.new(context) }
 
   let(:agent) { FakeAgent.new }
-  let(:context) { Planner::Context.new(root: Pathname.pwd, agent:, stdin: StringIO.new, stdout: StringIO.new, clock: -> { Time.now }) }
+  let(:context) { Planner::Context.new(root: Pathname.pwd, home: Pathname.pwd / 'home', skills_dir: Pathname.pwd / 'skills', agent:, stdin: StringIO.new, stdout: StringIO.new, clock: -> { Time.now }) }
 
   before { File.write('PLAN-001.md', "line one\n\nline two\n\n\n") }
 

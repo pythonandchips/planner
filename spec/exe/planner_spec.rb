@@ -24,6 +24,13 @@ RSpec.describe 'exe/planner', :aggregate_failures do # rubocop:disable RSpec/Des
     expect(File.directory?(out.chomp)).to be(true)
   end
 
+  it 'lists no skills while none ship' do
+    out, _err, status = planner('skills', 'list')
+
+    expect(status.exitstatus).to eq(0)
+    expect(out).to eq("No skills available.\n")
+  end
+
   it 'reports a missing iteration file' do
     _out, err, status = planner('plan', 'ITERATION-001.md')
 

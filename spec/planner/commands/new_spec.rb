@@ -6,7 +6,8 @@ RSpec.describe Planner::Commands::New, :aggregate_failures do
   let(:stdout) { StringIO.new }
   let(:root) { Pathname.pwd }
   let(:context) do
-    Planner::Context.new(root:, agent: FakeAgent.new, stdin: StringIO.new, stdout:,
+    Planner::Context.new(root:, home: Pathname.pwd / 'home', skills_dir: Pathname.pwd / 'skills',
+                         agent: FakeAgent.new, stdin: StringIO.new, stdout:,
                          clock: -> { Time.new(2026, 10, 27, 12, 16) })
   end
 

@@ -5,6 +5,8 @@ require 'planner'
 
 context = Planner::Context.new(
   root: Pathname.pwd,
+  home: Pathname(Dir.home),
+  skills_dir: Planner::SkillCatalog::DIR,
   agent: Planner::Agents::Claude.new,
   stdin: $stdin,
   stdout: $stdout,

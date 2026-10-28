@@ -6,7 +6,8 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
   let(:agent) { FakeAgent.new }
   let(:stdin) { StringIO.new }
   let(:context) do
-    Planner::Context.new(root: Pathname.pwd, agent:, stdin:, stdout: StringIO.new, clock: -> { Time.now })
+    Planner::Context.new(root: Pathname.pwd, home: Pathname.pwd / 'home', skills_dir: Pathname.pwd / 'skills',
+                         agent:, stdin:, stdout: StringIO.new, clock: -> { Time.now })
   end
   let(:plan) { 'docs/plans/x/PLAN-001.md' }
 

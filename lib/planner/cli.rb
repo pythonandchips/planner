@@ -7,7 +7,8 @@ module Planner
       'new' => Commands::New,
       'plan' => Commands::Plan,
       'run' => Commands::Run,
-      'review' => Commands::Review
+      'review' => Commands::Review,
+      'skills' => Commands::Skills
     }.freeze
 
     USAGE = <<~TEXT
@@ -15,6 +16,7 @@ module Planner
              planner plan <iteration-file>
              planner run [--model <model>] <plan-file>
              planner review [--model <model>] [--lens <text>|-] <plan-file>
+             planner skills <list|install> ...
     TEXT
 
     def initialize(context:, stderr: $stderr)
@@ -26,8 +28,8 @@ module Planner
       command = COMMANDS[argv.first] or raise UsageError
       command.new(@context).call(argv.drop(1))
       0
-    rescue UsageError
-      @stderr.print USAGE
+    rescue UsageError => e
+      @stderr.print e.usage || USAGE
       1
     rescue Error => e
       @stderr.puts "[planner] #{e.message}"

@@ -8,3 +8,6 @@
 - Find the project root from the git top-level instead of cwd.
 - After `planner run`, check that the agent followed the plan (for example, compare the diff against the plan's file list).
 - Add rules for run with commit discipline around content of commit message and PR body
+- allow the review command to edit a plan
+- Ship the first skills under `lib/planner/skills` (for example writing git commits, running yarn commands).
+- add a verificaiton skill for this repo to stop it tying to install the gem. It will not be allowed to do that.
