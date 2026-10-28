@@ -6,6 +6,7 @@ require 'planner'
 context = Planner::Context.new(
   root: Pathname.pwd,
   agent: Planner::Agents::Claude.new,
+  stdin: $stdin,
   stdout: $stdout,
   clock: -> { Time.now }
 )

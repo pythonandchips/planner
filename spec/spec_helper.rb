@@ -19,8 +19,16 @@ class FakeAgent
     @calls << [:run, prompt, model]
   end
 
+  def review(prompt, model:, report_file:)
+    @calls << [:review, prompt, model, report_file]
+  end
+
   def default_run_model
     'default-model'
+  end
+
+  def default_review_model
+    'default-review-model'
   end
 end
 

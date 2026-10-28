@@ -4,7 +4,7 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
   subject(:command) { described_class.new(context) }
 
   let(:agent) { FakeAgent.new }
-  let(:context) { Planner::Context.new(root: Pathname.pwd, agent:, stdout: StringIO.new, clock: -> { Time.now }) }
+  let(:context) { Planner::Context.new(root: Pathname.pwd, agent:, stdin: StringIO.new, stdout: StringIO.new, clock: -> { Time.now }) }
 
   def write_iteration(name)
     FileUtils.mkdir_p('docs/plans/x')

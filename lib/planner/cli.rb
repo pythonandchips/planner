@@ -6,13 +6,15 @@ module Planner
     COMMANDS = {
       'new' => Commands::New,
       'plan' => Commands::Plan,
-      'run' => Commands::Run
+      'run' => Commands::Run,
+      'review' => Commands::Review
     }.freeze
 
     USAGE = <<~TEXT
       usage: planner new <given-name>
              planner plan <iteration-file>
              planner run [--model <model>] <plan-file>
+             planner review [--model <model>] [--lens <text>|-] <plan-file>
     TEXT
 
     def initialize(context:, stderr: $stderr)

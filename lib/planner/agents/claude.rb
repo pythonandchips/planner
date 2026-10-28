@@ -2,11 +2,13 @@
 
 module Planner
   module Agents
-    # Wraps the `claude` CLI. The interface (#plan, #run, #default_run_model) is the
-    # contract a future agent must implement.
+    # Wraps the `claude` CLI. The interface (#plan, #run, #review, #default_run_model,
+    # #default_review_model) is the contract a future agent must implement.
     class Claude
       PLAN_MODEL = 'opus'
       DEFAULT_RUN_MODEL = 'sonnet'
+      DEFAULT_REVIEW_MODEL = 'opus'
+      REVIEW_TOOLS = 'Read,Grep,Glob,Write'
 
       def initialize(executor: Kernel.method(:exec))
         @executor = executor
@@ -20,8 +22,17 @@ module Planner
         @executor.call('claude', '--model', model, prompt)
       end
 
+      def review(prompt, model:, report_file:)
+        @executor.call('claude', '--model', model, "--tools=#{REVIEW_TOOLS}",
+                       "--allowedTools=Edit(#{report_file})", prompt)
+      end
+
       def default_run_model
         DEFAULT_RUN_MODEL
+      end
+
+      def default_review_model
+        DEFAULT_REVIEW_MODEL
       end
     end
   end

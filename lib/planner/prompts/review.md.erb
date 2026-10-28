@@ -1,0 +1,56 @@
+# Review Plan
+
+Review the plan `<%= plan_file %>` and write the review to
+`<%= review_file %>`. Read the plan, then read the parts of the
+codebase it touches and check the plan against them. Do not
+read other files in the plan folder.
+
+## Rules
+
+1. Do not modify repository files.
+2. You may write only `<%= review_file %>`.
+3. Use read-only exploration only.
+4. Focus on concrete findings with evidence.
+5. Include file paths and line numbers where applicable.
+6. Separate high-confidence findings from lower-confidence
+   concerns.
+7. Write in plain English.
+
+## Focus
+
+<% if lens -%>
+Review the plan only through the lens below. Leave out
+anything outside it.
+
+<%= lens %>
+<% else -%>
+Check that:
+
+1. The plan's claims match the code: the files, methods
+   and line references it names exist and say what it
+   says they do.
+2. The steps are complete and in a workable order.
+3. Nothing is ambiguous enough that a developer would
+   have to ask a question.
+4. The Verification section actually proves the change
+   works.
+5. The plan does not miss risks or regressions.
+<% end -%>
+
+## Report
+
+Write `<%= review_file %>` with these sections, in order:
+
+- `# <%= title %>`
+<% if lens -%>
+- `## Lens`: the lens in one or two sentences
+<% end -%>
+- `## Summary`
+- `## High-confidence findings`
+- `## Lower-confidence concerns`
+- `## Top recommendations`: a short list
+
+Write "None." under a findings section with nothing in it.
+
+When the file is written, give the user a short
+plain-English summary of the review here.
