@@ -9,4 +9,3 @@
 - allow the review command to edit a plan
 - Ship the first skills under `lib/planner/skills` (for example writing git commits, running yarn commands).
 - Add a skill to update the plan when doing a review.
-- Add an instruction to run to mark the plan as implemented once complete

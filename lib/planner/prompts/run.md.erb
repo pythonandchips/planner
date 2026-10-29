@@ -3,11 +3,15 @@
 Implement the plan `<%= plan_file %>`, reproduced below.
 Follow it exactly.
 
+Before anything else, run `date -u +%Y-%m-%dT%H:%M:%SZ`
+and keep the output as the start time.
+
 ## Rules
 
 1. Do every step the plan lists, in order, and nothing
-   else. Do not add features, refactors, files or changes
-   the plan does not ask for.
+   else apart from the run summary below. Do not add
+   features, refactors, files or changes the plan does
+   not ask for.
 2. The plan's decisions are final. Do not substitute a
    different approach, library, name or wording, even if
    you think another would be better.
@@ -24,6 +28,55 @@ Follow it exactly.
    - why it could not be completed
    - what you have already done
    - what is still left to do
+6. Write the run summary when you finish and when you
+   stop. When you finish, write it after every
+   Verification step passes and before the Commit step,
+   and stage `<%= plan_file %>` with the commit even if
+   the Commit section does not list it. When you stop,
+   write it but still do not commit.
+
+## Run summary
+
+As you go, keep a list of every command you could not
+run unassisted: commands that needed the user to approve
+a permission prompt, commands denied by permissions or
+blocked by the sandbox, commands you asked the user to
+run, and commands that failed and had to be run again in
+another form.
+
+To write the summary, run `date -u +%Y-%m-%dT%H:%M:%SZ`
+for the finish time. Then add the following to the very
+top of `<%= plan_file %>`, above everything already
+there, and change nothing else in that file:
+
+```
+## Run summary
+
+| Field | Value |
+| --- | --- |
+| Status | Completed or Stopped |
+| Started | <start time> |
+| Finished | <finish time> |
+| Elapsed | <finish minus start, e.g. 17m 29s> |
+| Model | <%= model %> |
+| Tokens | <best estimate of tokens used, e.g. ~85k> (estimate) |
+| Stopped at | <the step you stopped at> |
+| Reason | <one sentence on why> |
+
+### Commands that needed help
+
+| Command | What happened | Suggested fix |
+| --- | --- | --- |
+| `<command>` | <what happened> | <the permission or instruction that would let it run unassisted> |
+
+---
+
+```
+
+- Include the Stopped at and Reason rows only when
+  Status is Stopped.
+- Leave out the Commands that needed help heading and
+  table when there were none.
 
 ## Plan
 

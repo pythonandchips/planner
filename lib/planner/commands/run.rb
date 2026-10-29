@@ -17,14 +17,14 @@ module Planner
         file = args.first
         raise Error, "#{file} does not exist" unless File.file?(file)
 
-        @context.agent.run(prompt(file), model:)
+        @context.agent.run(prompt(file, model), model:)
       end
 
       private
 
-      def prompt(file)
+      def prompt(file, model)
         plan = File.read(file).sub(/\n+\z/, '')
-        ERB.new(File.read(TEMPLATE)).result_with_hash(plan_file: file, plan:)
+        ERB.new(File.read(TEMPLATE)).result_with_hash(plan_file: file, plan:, model:)
       end
 
       # Removes the options from args and returns the chosen model.

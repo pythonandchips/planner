@@ -42,6 +42,29 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
       expect(prompt).to end_with("## Plan\n\nline one\n\nline two\n")
     end
 
+    it 'asks for the start time before anything else' do
+      expect(prompt).to include('Before anything else, run `date -u +%Y-%m-%dT%H:%M:%SZ`')
+    end
+
+    it 'writes the summary on finish and on stop, staging the plan file' do
+      expect(prompt).to include(
+        '6. Write the run summary when you finish and when you',
+        'stage `PLAN-001.md` with the commit'
+      )
+    end
+
+    it 'prepends the summary to the plan file' do
+      expect(prompt).to include('top of `PLAN-001.md`, above everything already', "## Run summary\n\n| Field | Value |")
+    end
+
+    it 'fills in the model and asks for a labelled token estimate' do
+      expect(prompt).to include('| Model | default-model |', '(estimate) |')
+    end
+
+    it 'lists commands that needed help' do
+      expect(prompt).to include("### Commands that needed help\n\n| Command | What happened | Suggested fix |")
+    end
+
     it 'leaves no ERB tags behind' do
       expect(prompt).not_to include('<%')
     end
@@ -59,6 +82,12 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
     command.call(['PLAN-001.md', '-m', 'x'])
 
     expect(agent.calls.first.last).to eq('x')
+  end
+
+  it 'puts the chosen model in the run summary' do
+    command.call(['-m', 'x', 'PLAN-001.md'])
+
+    expect(agent.calls.first[1]).to include('| Model | x |')
   end
 
   it 'raises UsageError for a missing -m value' do
