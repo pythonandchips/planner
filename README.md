@@ -25,6 +25,12 @@ Run from the project root.
 planner new "Add login"  # => docs/plans/202610271216-add-login
 ```
 
+## Skills
+
+These ship with planner and are installed with `planner skills install`.
+
+- `commit-message`: makes the agent write commit messages in plain English, with a body that says what changed and why, an `Assisted-by:` trailer instead of `Co-Authored-By:`, and the usual subject and wrapping rules.
+
 ## Development
 
 ```sh
