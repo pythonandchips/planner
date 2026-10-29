@@ -37,4 +37,11 @@ RSpec.describe 'exe/planner', :aggregate_failures do # rubocop:disable RSpec/Des
     expect(status.exitstatus).to eq(1)
     expect(err).to eq("[planner] ITERATION-001.md does not exist\n")
   end
+
+  it 'reports a missing iteration file for explore' do
+    _out, err, status = planner('explore', 'ITERATION-001.md')
+
+    expect(status.exitstatus).to eq(1)
+    expect(err).to eq("[planner] ITERATION-001.md does not exist\n")
+  end
 end

@@ -23,12 +23,20 @@ class FakeAgent
     @calls << [:review, prompt, model, report_file]
   end
 
+  def explore(prompt, model:, findings_file:)
+    @calls << [:explore, prompt, model, findings_file]
+  end
+
   def default_run_model
     'default-model'
   end
 
   def default_review_model
     'default-review-model'
+  end
+
+  def default_explore_model
+    'default-explore-model'
   end
 end
 

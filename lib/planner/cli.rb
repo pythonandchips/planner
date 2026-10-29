@@ -8,6 +8,7 @@ module Planner
       'plan' => Commands::Plan,
       'run' => Commands::Run,
       'review' => Commands::Review,
+      'explore' => Commands::Explore,
       'skills' => Commands::Skills
     }.freeze
 
@@ -16,6 +17,7 @@ module Planner
              planner plan <iteration-file>
              planner run [--model <model>] <plan-file>
              planner review [--model <model>] [--lens <text>|-] <plan-file>
+             planner explore [--model <model>] <iteration-file>
              planner skills <list|install> ...
     TEXT
 

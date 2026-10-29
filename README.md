@@ -18,6 +18,7 @@ Run from the project root.
 - `planner plan <iteration-file>`: take an `ITERATION-<N>.md` file and have the agent write the matching `PLAN-<N>.md` next to it.
 - `planner run [--model <model>] <plan-file>`: have the agent implement a plan file exactly, stopping to explain if it can't, and prepend a run summary (status, elapsed time, estimated tokens, commands that needed help) to the plan file (default model `sonnet`).
 - `planner review [--model <model>] [--lens <text>|-] <plan-file>`: have the agent review a `PLAN-<N>.md` file against the code and write a plain-English `REVIEW-<N>.md` next to it, then summarise it in the session under the same headings; `--lens` narrows the review, `--lens -` reads the lens from stdin (default model `opus`).
+- `planner explore [--model <model>] <iteration-file>`: have the agent answer an `ITERATION-<N>.md` brief by exploring the code or data, asking you about anything unclear, and write a read-only `FINDINGS-<N>.md` next to it, then summarise it in the session (default model `opus`).
 - `planner skills list`: list the skills planner ships.
 - `planner skills install [--global] [--only <slug>,...]`: copy the skills into `.claude/skills`, or `~/.claude/skills` with `--global`; asks before replacing a skill that has changed.
 

@@ -1,0 +1,109 @@
+# Explore From Iteration
+
+Answer the brief `<%= iteration_file %>` by exploring
+the codebase or data, and write what you find to
+`<%= findings_file %>`. Both live in the plan folder
+`<%= folder %>/`. The findings are for reading only:
+nothing in them will be executed.
+
+## Rules
+
+1. Do not modify repository files.
+2. You may write only `<%= findings_file %>`.
+3. Use read-only exploration only.
+
+## Steps
+
+1. **Read the whole folder, not just the one file.**
+   Read `<%= iteration_file %>`, plus every other
+   `ITERATION-*.md`, `PLAN-*.md` and `FINDINGS-*.md`
+   already in `<%= folder %>/`. Earlier files record
+   decisions that still apply. Treat them as
+   established context, not something to ask about
+   again.
+2. **Resolve every open question before writing
+   anything.** Do not assume what the brief wants
+   answered, guess at scope, or fill a gap silently.
+   List every decision point the brief leaves open and
+   ask the user about all of them together. If
+   exploring turns up a new decision point, ask about
+   that too. Keep asking until nothing is ambiguous.
+3. **Explore.** Back every finding with evidence:
+   file paths and line numbers, or the data you read.
+   If a question cannot be answered from what you can
+   read, ask the user how to proceed before writing
+   anything.
+4. **Write `<%= findings_file %>`** in the structure
+   below, ending with the run summary.
+5. **Reply to the user** in the format under
+   "Summary for the user".
+
+## Findings structure
+
+```markdown
+# <%= title %> — <short title>
+
+## Questions
+
+<the questions the brief asks, numbered>
+
+## Decisions (resolved, do not revisit)
+
+| Decision | Choice |
+| --- | --- |
+| <each question you resolved with the user> | <the answer> |
+
+## Findings
+
+<what you found, with evidence>
+```
+
+Use mermaid diagrams where a picture makes a finding
+clearer, such as a flow, a dependency graph or a data
+model. Do not recommend a course of action.
+
+## Run summary
+
+As you go, keep a list of every tool call you could
+not make unassisted: calls that needed the user to
+approve a permission prompt, calls that were denied,
+and calls that failed and had to be made again in
+another form.
+
+End `<%= findings_file %>` with:
+
+```
+---
+
+## Run summary
+
+| Field | Value |
+| --- | --- |
+| Model | <%= model %> |
+| Tokens | <best estimate, e.g. ~85k> (estimate) |
+
+### Tool calls that needed help
+
+| Tool call | What happened | Suggested fix |
+| --- | --- | --- |
+| `<tool call>` | <what happened> | <the permission or instruction that would let it run unassisted> |
+```
+
+Leave out the Tool calls that needed help heading and
+table when there were none.
+
+## Summary for the user
+
+When the file is written, reply here with a
+plain-English summary in exactly this format:
+
+```
+Findings written to `<%= findings_file %>`.
+
+**Summary:** <one or two sentences>
+
+**Findings:**
+- <file:line where there is one>: <the finding in one line>
+```
+
+List every finding, one line each.
