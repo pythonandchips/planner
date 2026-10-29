@@ -21,11 +21,11 @@ RSpec.describe Planner::Agents::Claude do
     expect(agent.default_run_model).to eq('sonnet')
   end
 
-  it 'reviews with the given model, read-only tools and only the report writable' do
-    agent.review('review it', model: 'opus', report_file: 'd/REVIEW-001.md')
+  it 'reviews with the given model, read-only tools and only the report and plan writable' do
+    agent.review('review it', model: 'opus', report_file: 'd/REVIEW-001.md', plan_file: 'd/PLAN-001.md')
 
     expect(calls).to eq([['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write',
-                          '--allowedTools=Edit(d/REVIEW-001.md)', 'review it']])
+                          '--allowedTools=Edit(d/REVIEW-001.md),Edit(d/PLAN-001.md)', 'review it']])
   end
 
   it 'defaults the review model to opus' do

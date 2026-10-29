@@ -24,9 +24,9 @@ module Planner
         @executor.call('claude', '--model', model, prompt)
       end
 
-      def review(prompt, model:, report_file:)
+      def review(prompt, model:, report_file:, plan_file:)
         @executor.call('claude', '--model', model, "--tools=#{REVIEW_TOOLS}",
-                       "--allowedTools=Edit(#{report_file})", prompt)
+                       "--allowedTools=Edit(#{report_file}),Edit(#{plan_file})", prompt)
       end
 
       def explore(prompt, model:, findings_file:)

@@ -7,8 +7,11 @@ read other files in the plan folder.
 
 ## Rules
 
-1. Do not modify repository files.
-2. You may write only `<%= review_file %>`.
+1. Do not modify repository files, except the plan
+   as described under "Applying suggestions".
+2. You may write only `<%= review_file %>`, and
+   `<%= plan_file %>` when the user asks you to
+   apply suggestions.
 3. Use read-only exploration only.
 4. Focus on concrete findings with evidence.
 5. Include file paths and line numbers where applicable.
@@ -78,3 +81,22 @@ Review written to `<%= review_file %>`.
 
 List every finding and concern, one line each. Write
 "None." after a label with nothing under it.
+
+## Applying suggestions
+
+If the user asks you to apply suggestions from the
+review, edit `<%= plan_file %>` to make only those
+changes. Then update `<%= review_file %>`: under
+each finding, concern or recommendation you
+applied, add the line
+
+**Applied:** <what changed in the plan, in one line>
+
+Change nothing else in the review. Then reply here
+in exactly this format:
+
+```
+Applied to `<%= plan_file %>` and marked in
+`<%= review_file %>`:
+- <the item in one line>: <what changed in the plan>
+```

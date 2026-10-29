@@ -26,6 +26,12 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
     expect(call[2]).to eq('default-review-model')
   end
 
+  it 'passes the plan file to the agent' do
+    command.call([plan])
+
+    expect(call[4]).to eq('docs/plans/x/PLAN-001.md')
+  end
+
   describe 'the model option' do
     it 'accepts -m, --model and --model=' do
       [['-m', 'x'], ['--model', 'x'], ['--model=x']].each do |opts|
@@ -112,6 +118,14 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
 
     it 'has no lens line in the summary' do
       expect(prompt).not_to include('**Lens:**')
+    end
+
+    it 'lets the agent apply suggestions to the plan' do
+      expect(prompt).to include("You may write only `docs/plans/x/REVIEW-001.md`, and\n   " \
+                                '`docs/plans/x/PLAN-001.md` when the user asks you to',
+                                '## Applying suggestions', 'edit `docs/plans/x/PLAN-001.md` to make only those',
+                                '**Applied:** <what changed in the plan, in one line>',
+                                "Applied to `docs/plans/x/PLAN-001.md` and marked in\n`docs/plans/x/REVIEW-001.md`:")
     end
   end
 

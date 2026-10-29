@@ -21,7 +21,8 @@ module Planner
         raise Error, "#{file} does not exist" unless File.file?(file)
 
         review_file = review_file(file, number)
-        @context.agent.review(prompt(file, review_file, read_lens(lens)), model:, report_file: review_file)
+        @context.agent.review(prompt(file, review_file, read_lens(lens)),
+                              model:, report_file: review_file, plan_file: file)
       end
 
       private
