@@ -9,3 +9,4 @@
 - Ship more skills under `lib/planner/skills` (for example running yarn commands).
 - Allow the review fill to be commited even when it is not part of the plan
 - limit the plan and review to only read the files in the same folder. Not files in other `docs/plans`
+- Have plan ignore files that are gitignored for staging

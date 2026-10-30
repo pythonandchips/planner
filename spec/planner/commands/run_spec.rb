@@ -46,15 +46,15 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
       expect(prompt).to include('Before anything else, run `date -u +%Y-%m-%dT%H:%M:%SZ`')
     end
 
-    it 'writes the summary on finish and on stop, staging the plan file' do
+    it 'writes the stats on finish and on stop, staging the plan file' do
       expect(prompt).to include(
-        '6. Write the run summary when you finish and when you',
+        '6. Write the stats when you finish and when you',
         'stage `PLAN-001.md` with the commit'
       )
     end
 
-    it 'prepends the summary to the plan file' do
-      expect(prompt).to include('top of `PLAN-001.md`, above everything already', "## Run summary\n\n| Field | Value |")
+    it 'prepends the stats to the plan file' do
+      expect(prompt).to include('top of `PLAN-001.md`, above everything already', "## Stats\n\n| Field | Value |")
     end
 
     it 'fills in the model and asks for a labelled token estimate' do
@@ -84,7 +84,7 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
     expect(agent.calls.first.last).to eq('x')
   end
 
-  it 'puts the chosen model in the run summary' do
+  it 'puts the chosen model in the stats' do
     command.call(['-m', 'x', 'PLAN-001.md'])
 
     expect(agent.calls.first[1]).to include('| Model | x |')

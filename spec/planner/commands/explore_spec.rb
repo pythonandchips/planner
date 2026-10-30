@@ -98,8 +98,8 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
                                 '## Findings', 'mermaid', 'Do not recommend a course of action.')
     end
 
-    it 'has the run summary with the model' do
-      expect(prompt).to include("---\n\n## Run summary", '| Model | default-explore-model |',
+    it 'has the stats with the model' do
+      expect(prompt).to include("---\n\n## Stats", '| Model | default-explore-model |',
                                 '### Tool calls that needed help')
       expect(prompt).not_to include('| Status |', '| Started |')
     end

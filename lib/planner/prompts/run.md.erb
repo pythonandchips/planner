@@ -9,7 +9,7 @@ and keep the output as the start time.
 ## Rules
 
 1. Do every step the plan lists, in order, and nothing
-   else apart from the run summary below. Do not add
+   else apart from the stats below. Do not add
    features, refactors, files or changes the plan does
    not ask for.
 2. The plan's decisions are final. Do not substitute a
@@ -28,14 +28,14 @@ and keep the output as the start time.
    - why it could not be completed
    - what you have already done
    - what is still left to do
-6. Write the run summary when you finish and when you
+6. Write the stats when you finish and when you
    stop. When you finish, write it after every
    Verification step passes and before the Commit step,
    and stage `<%= plan_file %>` with the commit even if
    the Commit section does not list it. When you stop,
    write it but still do not commit.
 
-## Run summary
+## Stats
 
 As you go, keep a list of every command you could not
 run unassisted: commands that needed the user to approve
@@ -44,13 +44,13 @@ blocked by the sandbox, commands you asked the user to
 run, and commands that failed and had to be run again in
 another form.
 
-To write the summary, run `date -u +%Y-%m-%dT%H:%M:%SZ`
+To write the stats, run `date -u +%Y-%m-%dT%H:%M:%SZ`
 for the finish time. Then add the following to the very
 top of `<%= plan_file %>`, above everything already
 there, and change nothing else in that file:
 
 ```
-## Run summary
+## Stats
 
 | Field | Value |
 | --- | --- |
