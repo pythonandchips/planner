@@ -10,7 +10,7 @@ module Planner
       DEFAULT_REVIEW_MODEL = 'opus'
       REVIEW_TOOLS = 'Read,Grep,Glob,Write'
       DEFAULT_EXPLORE_MODEL = 'opus'
-      EXPLORE_TOOLS = 'Read,Grep,Glob,Write'
+      EXPLORE_TOOLS = 'Read,Grep,Glob,Write,WebFetch'
 
       def initialize(executor: Kernel.method(:exec))
         @executor = executor
@@ -31,7 +31,7 @@ module Planner
 
       def explore(prompt, model:, findings_file:)
         @executor.call('claude', '--model', model, "--tools=#{EXPLORE_TOOLS}",
-                       "--allowedTools=Edit(#{findings_file})", prompt)
+                       "--allowedTools=Edit(#{findings_file}),WebFetch", prompt)
       end
 
       def default_run_model

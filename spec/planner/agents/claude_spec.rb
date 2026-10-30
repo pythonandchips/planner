@@ -32,11 +32,11 @@ RSpec.describe Planner::Agents::Claude do
     expect(agent.default_review_model).to eq('opus')
   end
 
-  it 'explores with the given model, read-only tools and only the findings file writable' do
+  it 'explores with the given model, read-only tools plus WebFetch, and the findings file writable' do
     agent.explore('explore it', model: 'opus', findings_file: 'd/FINDINGS-001.md')
 
-    expect(calls).to eq([['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write',
-                          '--allowedTools=Edit(d/FINDINGS-001.md)', 'explore it']])
+    expect(calls).to eq([['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write,WebFetch',
+                          '--allowedTools=Edit(d/FINDINGS-001.md),WebFetch', 'explore it']])
   end
 
   it 'defaults the explore model to opus' do
