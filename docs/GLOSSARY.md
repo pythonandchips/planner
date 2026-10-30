@@ -4,8 +4,9 @@
 - **iteration file**: `ITERATION-<NNN>.md`. The brief for one iteration of work.
 - **plan file**: `PLAN-<NNN>.md`. The implementation plan written from an iteration file by `planner plan`.
 - **review file**: `REVIEW-<NNN>.md`, or `REVIEW-<NNN>-<letter>.md` for a later review of the same plan. A plain-English review of a plan file, written by `planner review`. When the user has the review session apply suggestions to the plan, each applied item gets an `**Applied:**` line.
-- **findings file**: `FINDINGS-<NNN>.md`, or `FINDINGS-<NNN>-<letter>.md` for a later exploration of the same iteration. Answers to the questions in an iteration file, found by exploring the code, data or web pages. Written by `planner explore`, and never executed.
+- **findings file**: `FINDINGS-<NNN>.md`, or `FINDINGS-<NNN>-<letter>.md` for a later exploration of the same iteration. Answers to the questions in an iteration file, found by exploring the code, data or web pages. It opens with a summary and recommendations. Written by `planner explore`, and never executed.
 - **skill**: A folder under `lib/planner/skills/<slug>/` with a `SKILL.md`, for the agent to use. Copied into `.claude/skills` by `planner skills install`.
 - **agent**: The coding tool planner hands off to. Currently `claude`.
-- **summary**: The plain-English reply the agent gives in the session after `planner explore` or `planner review` writes its file, describing what it found. Not written to any file.
+- **summary**: The plain-English account of what the agent found. `planner explore` writes it as `## Summary` at the top of the findings file, and after `planner explore` or `planner review` writes its file the agent also gives one in the session.
+- **recommendations**: The `## Recommendations` section near the top of a findings file: further exploration, or actions a later iteration could plan, each citing the findings it follows from. Advisory only: nothing in it has been decided.
 - **stats**: The `## Stats` block the agent adds to a file it writes: model, estimated tokens, and the commands that needed help. `planner run` also records status and timings. Appended to the plan file by `planner run` and to the findings file by `planner explore`.

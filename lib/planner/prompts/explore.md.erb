@@ -52,6 +52,16 @@ nothing in them will be executed.
 ```markdown
 # <%= title %> — <short title>
 
+## Summary
+
+<one or two sentences answering the brief>
+
+1. <file:line or URL where there is one>: <finding 1 in one line>
+
+## Recommendations
+
+- <further exploration, or an action a later iteration could plan> (finding <N>)
+
 ## Questions
 
 <the questions the brief asks, numbered>
@@ -64,12 +74,24 @@ nothing in them will be executed.
 
 ## Findings
 
+### 1. <short title>
+
 <what you found, with evidence>
 ```
 
+Number the findings `### 1.`, `### 2.` and so on.
+List every finding in the Summary, one line each,
+under the same number.
+
+Recommendations are advisory: further exploration, or
+actions a later iteration could plan. Nothing in them
+has been decided. End each one with the finding or
+findings it follows from, such as `(finding 2)` or
+`(findings 2, 3)`. Write `None.` when you have none.
+
 Use mermaid diagrams where a picture makes a finding
 clearer, such as a flow, a dependency graph or a data
-model. Do not recommend a course of action.
+model.
 
 ## Stats
 
@@ -115,7 +137,12 @@ Findings written to `<%= findings_file %>`.
 **Summary:** <one or two sentences>
 
 **Findings:**
-- <file:line or URL where there is one>: <the finding in one line>
+1. <file:line or URL where there is one>: <the finding in one line>
+
+**Recommendations:**
+- <the recommendation in one line> (finding <N>)
 ```
 
-List every finding, one line each.
+List every finding and every recommendation, one line
+each, numbered and worded as in the file. Write `None.`
+under Recommendations when there are none.
