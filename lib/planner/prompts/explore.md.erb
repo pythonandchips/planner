@@ -64,13 +64,16 @@ model. Do not recommend a course of action.
 
 ## Stats
 
-As you go, keep a list of every tool call you could
-not make unassisted: calls that needed the user to
-approve a permission prompt, calls that were denied,
-and calls that failed and had to be made again in
+As you go, keep a list of every command you could not
+run unassisted: commands that needed the user to approve
+a permission prompt, commands denied by permissions or
+blocked by the sandbox, commands you asked the user to
+run, and commands that failed and had to be run again in
 another form.
 
-End `<%= findings_file %>` with:
+Add the following to the very end of
+`<%= findings_file %>`, below everything already
+there, and change nothing else in that file:
 
 ```
 ---
@@ -82,15 +85,15 @@ End `<%= findings_file %>` with:
 | Model | <%= model %> |
 | Tokens | <best estimate, e.g. ~85k> (estimate) |
 
-### Tool calls that needed help
+### Commands that needed help
 
-| Tool call | What happened | Suggested fix |
+| Command | What happened | Suggested fix |
 | --- | --- | --- |
-| `<tool call>` | <what happened> | <the permission or instruction that would let it run unassisted> |
+| `<command>` | <what happened> | <the permission or instruction that would let it run unassisted> |
 ```
 
-Leave out the Tool calls that needed help heading and
-table when there were none.
+- Leave out the Commands that needed help heading and
+  table when there were none.
 
 ## Summary for the user
 

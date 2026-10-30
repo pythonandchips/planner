@@ -53,8 +53,9 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
       )
     end
 
-    it 'prepends the stats to the plan file' do
-      expect(prompt).to include('top of `PLAN-001.md`, above everything already', "## Stats\n\n| Field | Value |")
+    it 'appends the stats to the plan file' do
+      expect(prompt).to include('end of `PLAN-001.md`, below everything already',
+                                "---\n\n## Stats\n\n| Field | Value |")
     end
 
     it 'fills in the model and asks for a labelled token estimate' do

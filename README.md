@@ -16,7 +16,7 @@ Run from the project root.
 
 - `planner new <given-name>`: create a plan folder under `docs/plans/` and print its path.
 - `planner plan <iteration-file>`: take an `ITERATION-<N>.md` file and have the agent write the matching `PLAN-<N>.md` next to it.
-- `planner run [--model <model>] <plan-file>`: have the agent implement a plan file exactly, stopping to explain if it can't, and prepend stats (status, elapsed time, estimated tokens, commands that needed help) to the plan file (default model `sonnet`).
+- `planner run [--model <model>] <plan-file>`: have the agent implement a plan file exactly, stopping to explain if it can't, and append stats (status, elapsed time, estimated tokens, commands that needed help) to the plan file (default model `sonnet`).
 - `planner review [--model <model>] [--lens <text>|-] <plan-file>`: have the agent review a `PLAN-<N>.md` file against the code and write a plain-English `REVIEW-<N>.md` next to it, then summarise it in the session under the same headings; `--lens` narrows the review, `--lens -` reads the lens from stdin; ask in the session and it applies suggestions to the plan and marks each one `**Applied:**` in the review (default model `opus`).
 - `planner explore [--model <model>] <iteration-file>`: have the agent answer an `ITERATION-<N>.md` brief by exploring the code or data, asking you about anything unclear, and write a read-only `FINDINGS-<N>.md` next to it, then summarise it in the session (default model `opus`).
 - `planner skills list`: list the skills planner ships.

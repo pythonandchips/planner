@@ -98,9 +98,12 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
                                 '## Findings', 'mermaid', 'Do not recommend a course of action.')
     end
 
-    it 'has the stats with the model' do
-      expect(prompt).to include("---\n\n## Stats", '| Model | default-explore-model |',
-                                '### Tool calls that needed help')
+    it 'has the stats with the model' do # rubocop:disable RSpec/ExampleLength
+      expect(prompt).to include(
+        "Add the following to the very end of\n`docs/plans/x/FINDINGS-001.md`, below everything already",
+        "---\n\n## Stats", '| Model | default-explore-model |',
+        "### Commands that needed help\n\n| Command | What happened | Suggested fix |"
+      )
       expect(prompt).not_to include('| Status |', '| Started |')
     end
 

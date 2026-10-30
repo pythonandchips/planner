@@ -46,10 +46,12 @@ another form.
 
 To write the stats, run `date -u +%Y-%m-%dT%H:%M:%SZ`
 for the finish time. Then add the following to the very
-top of `<%= plan_file %>`, above everything already
+end of `<%= plan_file %>`, below everything already
 there, and change nothing else in that file:
 
 ```
+---
+
 ## Stats
 
 | Field | Value |
@@ -59,7 +61,7 @@ there, and change nothing else in that file:
 | Finished | <finish time> |
 | Elapsed | <finish minus start, e.g. 17m 29s> |
 | Model | <%= model %> |
-| Tokens | <best estimate of tokens used, e.g. ~85k> (estimate) |
+| Tokens | <best estimate, e.g. ~85k> (estimate) |
 | Stopped at | <the step you stopped at> |
 | Reason | <one sentence on why> |
 
@@ -68,9 +70,6 @@ there, and change nothing else in that file:
 | Command | What happened | Suggested fix |
 | --- | --- | --- |
 | `<command>` | <what happened> | <the permission or instruction that would let it run unassisted> |
-
----
-
 ```
 
 - Include the Stopped at and Reason rows only when

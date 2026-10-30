@@ -8,4 +8,4 @@
 - **skill**: A folder under `lib/planner/skills/<slug>/` with a `SKILL.md`, for the agent to use. Copied into `.claude/skills` by `planner skills install`.
 - **agent**: The coding tool planner hands off to. Currently `claude`.
 - **summary**: The plain-English reply the agent gives in the session after `planner explore` or `planner review` writes its file, describing what it found. Not written to any file.
-- **stats**: The `## Stats` block the agent adds to a file it writes: model, estimated tokens, and the commands or tool calls that needed help. `planner run` also records status and timings. Prepended to the plan file by `planner run`; appended to the findings file by `planner explore`.
+- **stats**: The `## Stats` block the agent adds to a file it writes: model, estimated tokens, and the commands that needed help. `planner run` also records status and timings. Appended to the plan file by `planner run` and to the findings file by `planner explore`.
