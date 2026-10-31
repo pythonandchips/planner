@@ -110,6 +110,18 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
                                     'List every finding in the Summary')
     end
 
+    it 'runs the exploration as a conversation' do # rubocop:disable RSpec/ExampleLength
+      expect(prompt).to include(
+        'The exploration is a conversation.', '2. **Clarify the brief.**', '4. **Ask.**',
+        'If you have no questions, go straight on to step 5.', 'the whole file each round.',
+        '7. **Check in**', '8. **Finish** when the user tells you to:', "## Check-in\n\nAfter each round's write",
+        "Findings so far written to `docs/plans/x/FINDINGS-001.md`.\n\n**Summary:**",
+        "**Next steps:**\n1. <a direction to explore next, in one line>",
+        'Add the stats only once, when the user tells you to', 'then each aspect the user asked you to focus on'
+      )
+      expect(prompt).not_to include('Resolve every open question before writing')
+    end
+
     it 'has the stats with the model' do # rubocop:disable RSpec/ExampleLength
       expect(prompt).to include(
         "Add the following to the very end of\n`docs/plans/x/FINDINGS-001.md`, below everything already",
