@@ -24,7 +24,11 @@ module Planner
 
       def prompt(file, model)
         plan = File.read(file).sub(/\n+\z/, '')
-        ERB.new(File.read(TEMPLATE)).result_with_hash(plan_file: file, plan:, model:)
+        folder = File.dirname(file)
+        ERB.new(File.read(TEMPLATE)).result_with_hash(
+          plan_file: file, plan:, model:, toc_file: TableOfContent.path(folder),
+          table_of_content: TableOfContent.section(folder, update: true)
+        )
       end
 
       # Removes the options from args and returns the chosen model.

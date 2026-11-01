@@ -114,4 +114,12 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
   it 'raises Error for a missing file' do
     expect { command.call(['nope.md']) }.to raise_error(Planner::Error, 'nope.md does not exist')
   end
+
+  it 'updates the table of contents when it exists' do
+    command.call(['PLAN-001.md'])
+
+    expect(agent.calls.first[1]).to include('the stats and the table of',
+                                            '`./TABLE_OF_CONTENT.md` if you updated it',
+                                            'If `./TABLE_OF_CONTENT.md` exists')
+  end
 end

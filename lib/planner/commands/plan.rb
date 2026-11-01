@@ -27,7 +27,10 @@ module Planner
       def prompt(file, number)
         folder = File.dirname(file)
         plan_file = File.join(folder, format('PLAN-%03d.md', number.to_i))
-        ERB.new(File.read(TEMPLATE)).result_with_hash(iteration_file: file, folder:, plan_file:)
+        ERB.new(File.read(TEMPLATE)).result_with_hash(
+          iteration_file: file, folder:, plan_file:, toc_file: TableOfContent.path(folder),
+          table_of_content: TableOfContent.section(folder, update: true)
+        )
       end
     end
   end

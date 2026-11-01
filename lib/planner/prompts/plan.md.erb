@@ -19,7 +19,10 @@ Turn the brief `<%= iteration_file %>` into an implementation plan
    follow-up question.
 4. **End the plan with a Commit section.** State exactly what to stage and give a
    suggested commit message, with the instruction that the commit happens only after the
-   plan's change has actually been made (implemented and verified), never before.
+   plan's change has actually been made (implemented and verified), never before. If `<%= toc_file %>` exists, list
+   it in what to stage.
+5. **Update the table of contents.** After writing `<%= plan_file %>`, update
+   `<%= toc_file %>` as described under "Table of contents".
 
 ## Plan structure
 
@@ -63,3 +66,7 @@ already settled.
   question instead. This is the one rule these instructions exist to enforce.
 - Check sibling files in the folder for precedent before asking a question that was
   already answered there.
+
+## Table of contents
+
+<%= table_of_content %>

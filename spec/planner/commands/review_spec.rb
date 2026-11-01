@@ -30,6 +30,7 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
     command.call([plan])
 
     expect(call[4]).to eq('docs/plans/x/PLAN-001.md')
+    expect(call[5]).to eq('docs/plans/x/TABLE_OF_CONTENT.md')
   end
 
   describe 'the model option' do
@@ -121,11 +122,18 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
     end
 
     it 'lets the agent apply suggestions to the plan' do
-      expect(prompt).to include("You may write only `docs/plans/x/REVIEW-001.md`, and\n   " \
+      expect(prompt).to include("You may write only `docs/plans/x/REVIEW-001.md`,\n   " \
                                 '`docs/plans/x/PLAN-001.md` when the user asks you to',
                                 '## Applying suggestions', 'edit `docs/plans/x/PLAN-001.md` to make only those',
                                 '**Applied:** <what changed in the plan, in one line>',
                                 "Applied to `docs/plans/x/PLAN-001.md` and marked in\n`docs/plans/x/REVIEW-001.md`:")
+    end
+
+    it 'updates the table of contents when it exists' do
+      expect(prompt).to include('If `docs/plans/x/TABLE_OF_CONTENT.md` exists',
+                                'Never use them to inform the review.',
+                                'After writing `docs/plans/x/REVIEW-001.md`, update')
+      expect(prompt.split('## Applying suggestions').last).to include('Then update')
     end
   end
 

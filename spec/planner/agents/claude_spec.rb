@@ -22,10 +22,12 @@ RSpec.describe Planner::Agents::Claude do
   end
 
   it 'reviews with the given model, read-only tools and only the report and plan writable' do
-    agent.review('review it', model: 'opus', report_file: 'd/REVIEW-001.md', plan_file: 'd/PLAN-001.md')
+    agent.review('review it', model: 'opus', report_file: 'd/REVIEW-001.md', plan_file: 'd/PLAN-001.md',
+                              toc_file: 'd/TABLE_OF_CONTENT.md')
 
     expect(calls).to eq([['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write',
-                          '--allowedTools=Edit(d/REVIEW-001.md),Edit(d/PLAN-001.md)', 'review it']])
+                          '--allowedTools=Edit(d/REVIEW-001.md),Edit(d/PLAN-001.md),Edit(d/TABLE_OF_CONTENT.md)',
+                          'review it']])
   end
 
   it 'defaults the review model to opus' do
@@ -33,13 +35,26 @@ RSpec.describe Planner::Agents::Claude do
   end
 
   it 'explores with the given model, read-only tools plus WebFetch, and the findings file writable' do
-    agent.explore('explore it', model: 'opus', findings_file: 'd/FINDINGS-001.md')
+    agent.explore('explore it', model: 'opus', findings_file: 'd/FINDINGS-001.md',
+                                toc_file: 'd/TABLE_OF_CONTENT.md')
 
     expect(calls).to eq([['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write,WebFetch',
-                          '--allowedTools=Edit(d/FINDINGS-001.md),WebFetch', 'explore it']])
+                          '--allowedTools=Edit(d/FINDINGS-001.md),Edit(d/TABLE_OF_CONTENT.md),WebFetch',
+                          'explore it']])
   end
 
   it 'defaults the explore model to opus' do
     expect(agent.default_explore_model).to eq('opus')
+  end
+
+  it 'writes the table of contents headless with the given model and only that file writable' do
+    agent.toc('list it', model: 'haiku', toc_file: 'd/TABLE_OF_CONTENT.md')
+
+    expect(calls).to eq([['claude', '-p', '--model', 'haiku', '--tools=Read,Grep,Glob,Write',
+                          '--allowedTools=Edit(d/TABLE_OF_CONTENT.md)', 'list it']])
+  end
+
+  it 'defaults the toc model to haiku' do
+    expect(agent.default_toc_model).to eq('haiku')
   end
 end

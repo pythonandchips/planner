@@ -47,6 +47,12 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
       expect(call[3]).to eq('docs/plans/x/FINDINGS-001.md')
     end
 
+    it 'passes the table of contents file to the agent' do
+      command.call([iteration])
+
+      expect(call[4]).to eq('docs/plans/x/TABLE_OF_CONTENT.md')
+    end
+
     it 'gets -a when the findings exist' do
       File.write('docs/plans/x/FINDINGS-001.md', '')
       command.call([iteration])
@@ -86,6 +92,11 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
     it 'starts with the explore heading and has no ERB leftovers' do
       expect(prompt).to start_with("# Explore From Iteration\n")
       expect(prompt).not_to include('<%')
+    end
+
+    it 'updates the table of contents when it exists' do
+      expect(prompt).to include('If `docs/plans/x/TABLE_OF_CONTENT.md` exists',
+                                'update `docs/plans/x/TABLE_OF_CONTENT.md` as described under')
     end
 
     it 'names the brief, the findings file, the folder and the title' do
@@ -128,7 +139,7 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
         "---\n\n## Stats", '| Model | default-explore-model |',
         "### Commands that needed help\n\n| Command | What happened | Suggested fix |"
       )
-      expect(prompt).not_to include('| Status |', '| Started |')
+      expect(prompt).not_to include('| Status | Completed or Stopped |', '| Started |')
     end
 
     it 'has the summary format' do # rubocop:disable RSpec/ExampleLength

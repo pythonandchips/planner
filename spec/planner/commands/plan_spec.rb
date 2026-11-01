@@ -48,4 +48,13 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
     expect { command.call(['nope.md']) }
       .to raise_error(Planner::Error, 'nope.md is not an ITERATION-<N>.md file')
   end
+
+  it 'updates the table of contents when it exists' do
+    write_iteration('ITERATION-001.md')
+    command.call(['docs/plans/x/ITERATION-001.md'])
+
+    expect(agent.calls.first.last).to include('5. **Update the table of contents.**',
+                                              'If `docs/plans/x/TABLE_OF_CONTENT.md` exists, list',
+                                              '## Table of contents')
+  end
 end

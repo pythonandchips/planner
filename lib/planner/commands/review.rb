@@ -20,12 +20,16 @@ module Planner
         raise Error, "#{file} is not a PLAN-<N>.md file" unless number
         raise Error, "#{file} does not exist" unless File.file?(file)
 
-        review_file = review_file(file, number)
-        @context.agent.review(prompt(file, review_file, read_lens(lens)),
-                              model:, report_file: review_file, plan_file: file)
+        run_review(file, number, model, read_lens(lens))
       end
 
       private
+
+      def run_review(file, number, model, lens)
+        review_file = review_file(file, number)
+        @context.agent.review(prompt(file, review_file, lens), model:, report_file: review_file, plan_file: file,
+                                                               toc_file: TableOfContent.path(File.dirname(file)))
+      end
 
       # REVIEW-<NNN>.md, or the first free REVIEW-<NNN>-a.md, -b ... -z, -aa ... after it.
       def review_file(file, number)
@@ -48,8 +52,11 @@ module Planner
 
       def prompt(file, review_file, lens)
         title = "#{File.basename(review_file, '.md')} — #{file}"
-        ERB.new(File.read(TEMPLATE), trim_mode: '-')
-           .result_with_hash(plan_file: file, review_file:, lens:, title:)
+        folder = File.dirname(file)
+        ERB.new(File.read(TEMPLATE), trim_mode: '-').result_with_hash(
+          plan_file: file, review_file:, lens:, title:, toc_file: TableOfContent.path(folder),
+          table_of_content: TableOfContent.section(folder, update: true)
+        )
       end
 
       # Removes the options from args and returns the chosen model and the raw lens.

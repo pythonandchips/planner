@@ -3,15 +3,19 @@
 Review the plan `<%= plan_file %>` and write the review to
 `<%= review_file %>`. Read the plan, then read the parts of the
 codebase it touches and check the plan against them. Do not
-read other files in the plan folder.
+read other files in the plan folder, except to update
+the table of contents as described under "Table of
+contents". Never use them to inform the review.
 
 ## Rules
 
 1. Do not modify repository files, except the plan
-   as described under "Applying suggestions".
-2. You may write only `<%= review_file %>`, and
+   and the table of contents as described under
+   "Applying suggestions" and "Table of contents".
+2. You may write only `<%= review_file %>`,
    `<%= plan_file %>` when the user asks you to
-   apply suggestions.
+   apply suggestions, and `<%= toc_file %>` as
+   described under "Table of contents".
 3. Use read-only exploration only.
 4. Focus on concrete findings with evidence.
 5. Include file paths and line numbers where applicable.
@@ -55,6 +59,10 @@ Write `<%= review_file %>` with these sections, in order:
 
 Write "None." under a findings section with nothing in it.
 
+After writing `<%= review_file %>`, update
+`<%= toc_file %>` as described under "Table of
+contents".
+
 ## Summary for the user
 
 When the file is written, reply here with a plain-English
@@ -92,11 +100,16 @@ applied, add the line
 
 **Applied:** <what changed in the plan, in one line>
 
-Change nothing else in the review. Then reply here
-in exactly this format:
+Change nothing else in the review. Then update
+`<%= toc_file %>` as described under "Table of
+contents". Then reply here in exactly this format:
 
 ```
 Applied to `<%= plan_file %>` and marked in
 `<%= review_file %>`:
 - <the item in one line>: <what changed in the plan>
 ```
+
+## Table of contents
+
+<%= table_of_content %>

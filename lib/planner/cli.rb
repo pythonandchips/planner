@@ -9,6 +9,7 @@ module Planner
       'run' => Commands::Run,
       'review' => Commands::Review,
       'explore' => Commands::Explore,
+      'toc' => Commands::Toc,
       'skills' => Commands::Skills
     }.freeze
 
@@ -18,6 +19,7 @@ module Planner
              planner run [--model <model>] <plan-file>
              planner review [--model <model>] [--lens <text>|-] <plan-file>
              planner explore [--model <model>] <iteration-file>
+             planner toc [--model <model>] <plan-folder>
              planner skills <list|install> ...
     TEXT
 

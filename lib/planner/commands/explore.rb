@@ -21,10 +21,12 @@ module Planner
         raise Error, "#{file} does not exist" unless File.file?(file)
 
         findings_file = findings_file(file, number)
-        @context.agent.explore(prompt(file, findings_file, model), model:, findings_file:)
+        @context.agent.explore(prompt(file, findings_file, model), model:, findings_file:, toc_file: toc_file(file))
       end
 
       private
+
+      def toc_file(file) = TableOfContent.path(File.dirname(file))
 
       # FINDINGS-<NNN>.md, or the first free FINDINGS-<NNN>-a.md, -b ... -z, -aa ... after it.
       def findings_file(file, number)
@@ -39,9 +41,11 @@ module Planner
       end
 
       def prompt(file, findings_file, model)
+        folder = File.dirname(file)
         ERB.new(File.read(TEMPLATE)).result_with_hash(
-          iteration_file: file, folder: File.dirname(file), findings_file:, model:,
-          title: File.basename(findings_file, '.md')
+          iteration_file: file, folder:, findings_file:, model:,
+          title: File.basename(findings_file, '.md'), toc_file: TableOfContent.path(folder),
+          table_of_content: TableOfContent.section(folder, update: true)
         )
       end
 

@@ -9,7 +9,8 @@ and keep the output as the start time.
 ## Rules
 
 1. Do every step the plan lists, in order, and nothing
-   else apart from the stats below. Do not add
+   else apart from the stats and the table of
+   contents below. Do not add
    features, refactors, files or changes the plan does
    not ask for.
 2. The plan's decisions are final. Do not substitute a
@@ -29,11 +30,14 @@ and keep the output as the start time.
    - what you have already done
    - what is still left to do
 6. Write the stats when you finish and when you
-   stop. When you finish, write it after every
-   Verification step passes and before the Commit step,
-   and stage `<%= plan_file %>` with the commit even if
-   the Commit section does not list it. When you stop,
-   write it but still do not commit.
+   stop, then update the table of contents as
+   described under "Table of contents". When you
+   finish, do both after every Verification step
+   passes and before the Commit step, and
+   stage `<%= plan_file %>` with the commit even if
+   the Commit section does not list it, along with
+   `<%= toc_file %>` if you updated it. When you
+   stop, do both but still do not commit.
 
 ## Stats
 
@@ -76,6 +80,10 @@ there, and change nothing else in that file:
   Status is Stopped.
 - Leave out the Commands that needed help heading and
   table when there were none.
+
+## Table of contents
+
+<%= table_of_content %>
 
 ## Plan
 

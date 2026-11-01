@@ -19,12 +19,16 @@ class FakeAgent
     @calls << [:run, prompt, model]
   end
 
-  def review(prompt, model:, report_file:, plan_file:)
-    @calls << [:review, prompt, model, report_file, plan_file]
+  def review(prompt, model:, report_file:, plan_file:, toc_file:)
+    @calls << [:review, prompt, model, report_file, plan_file, toc_file]
   end
 
-  def explore(prompt, model:, findings_file:)
-    @calls << [:explore, prompt, model, findings_file]
+  def explore(prompt, model:, findings_file:, toc_file:)
+    @calls << [:explore, prompt, model, findings_file, toc_file]
+  end
+
+  def toc(prompt, model:, toc_file:)
+    @calls << [:toc, prompt, model, toc_file]
   end
 
   def default_run_model
@@ -37,6 +41,10 @@ class FakeAgent
 
   def default_explore_model
     'default-explore-model'
+  end
+
+  def default_toc_model
+    'default-toc-model'
   end
 end
 

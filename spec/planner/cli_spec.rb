@@ -41,6 +41,11 @@ RSpec.describe Planner::CLI, :aggregate_failures do
     expect(stderr.string).to eq("[planner] ITERATION-001.md does not exist\n")
   end
 
+  it 'dispatches toc' do
+    expect(cli.call(%w[toc nope])).to eq(1)
+    expect(stderr.string).to eq("[planner] nope is not a directory\n")
+  end
+
   it 'returns 0 on success' do
     expect(cli.call(%w[new Hello])).to eq(0)
     expect(stdout.string).to eq("docs/plans/202610271216-hello\n")

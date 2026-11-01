@@ -1,0 +1,45 @@
+<% if update -%>
+If `<%= toc_file %>` exists, update it when this
+prompt says to. Read every `PLAN-*.md` in
+`<%= folder %>/` for its status, then:
+
+- add a line for each file you wrote, or replace its
+  line if it is already listed, in its place in the
+  order below
+- set every plan's status from its stats
+- rewrite the Summary to cover the folder as the
+  lines now describe it
+- leave every other line as it is
+
+If `<%= toc_file %>` does not exist, do not create it.
+
+<% end -%>
+The table of contents lists the files in
+`<%= folder %>/` in exactly this format:
+
+```markdown
+# Table of contents — <%= name %>
+
+## Summary
+
+<two to four plain-English sentences on what has been done in this folder and where it stands>
+
+## Files
+
+- [<file>](<file>) — <what the file holds, in one line>
+- [PLAN-<NNN>.md](PLAN-<NNN>.md) — <what the plan changes, in one line> (<status>)
+```
+
+- List every `.md` file in the folder except
+  `TABLE_OF_CONTENT.md`.
+- Order the files by number. Within a number, put
+  `ITERATION`, then `FINDINGS`, then `PLAN`, then
+  `REVIEW`, and put lettered files such as
+  `FINDINGS-001-a.md` straight after their base file,
+  in letter order (`a`, `b` ... `z`, `aa`). Put any
+  other `.md` files at the end, alphabetically.
+- Only plan lines have a status. It is `Completed`
+  when the plan's stats have a `| Status | Completed |`
+  row, in the `## Stats` block at the end of the file
+  or the older `## Run summary` block at the top.
+  Otherwise it is `Not completed`.
