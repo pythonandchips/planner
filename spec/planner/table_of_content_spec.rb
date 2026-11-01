@@ -9,7 +9,8 @@ RSpec.describe Planner::TableOfContent, :aggregate_failures do
     section = described_class.section('docs/plans/x', update: false)
 
     expect(section).to include('# Table of contents — x', '| Status | Completed |', 'Not completed',
-                               "except\n  `TABLE_OF_CONTENT.md`")
+                               'grouped by number', '`NNN - <summary>`', '- [PLAN-<NNN>.md](PLAN-<NNN>.md) (<status>)',
+                               '- [<folder>/](<folder>/)', 'by the plain line `Other`')
     expect(section).not_to include('If `docs/plans/x/TABLE_OF_CONTENT.md` exists', '<%')
   end
 
@@ -17,6 +18,7 @@ RSpec.describe Planner::TableOfContent, :aggregate_failures do
     section = described_class.section('docs/plans/x', update: true)
 
     expect(section).to include('If `docs/plans/x/TABLE_OF_CONTENT.md` exists', 'do not create it',
-                               '# Table of contents — x')
+                               '# Table of contents — x', 'adding the group if it is missing',
+                               'rewrite the summary line of every group')
   end
 end

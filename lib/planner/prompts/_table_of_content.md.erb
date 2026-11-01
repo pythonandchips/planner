@@ -3,9 +3,11 @@ If `<%= toc_file %>` exists, update it when this
 prompt says to. Read every `PLAN-*.md` in
 `<%= folder %>/` for its status, then:
 
-- add a line for each file you wrote, or replace its
-  line if it is already listed, in its place in the
-  order below
+- add a link for each file you wrote, or replace its
+  link if it is already listed, in its place in its
+  number's group, adding the group if it is missing
+- rewrite the summary line of every group you added
+  a link to
 - set every plan's status from its stats
 - rewrite the Summary to cover the folder as the
   lines now describe it
@@ -14,8 +16,9 @@ prompt says to. Read every `PLAN-*.md` in
 If `<%= toc_file %>` does not exist, do not create it.
 
 <% end -%>
-The table of contents lists the files in
-`<%= folder %>/` in exactly this format:
+The table of contents lists the files and folders in
+`<%= folder %>/`, grouped by number, in exactly this
+format:
 
 ```markdown
 # Table of contents — <%= name %>
@@ -26,18 +29,36 @@ The table of contents lists the files in
 
 ## Files
 
-- [<file>](<file>) — <what the file holds, in one line>
-- [PLAN-<NNN>.md](PLAN-<NNN>.md) — <what the plan changes, in one line> (<status>)
+<NNN> - <what this number's work asked for and where it got to, in one line>
+- [<file>](<file>)
+- [PLAN-<NNN>.md](PLAN-<NNN>.md) (<status>)
+- [<folder>/](<folder>/)
+
+Other
+- [<file or folder>](<file or folder>)
 ```
 
-- List every `.md` file in the folder except
-  `TABLE_OF_CONTENT.md`.
-- Order the files by number. Within a number, put
-  `ITERATION`, then `FINDINGS`, then `PLAN`, then
-  `REVIEW`, and put lettered files such as
-  `FINDINGS-001-a.md` straight after their base file,
-  in letter order (`a`, `b` ... `z`, `aa`). Put any
-  other `.md` files at the end, alphabetically.
+- List every file and folder in the folder except
+  `TABLE_OF_CONTENT.md` and names starting with `.`.
+  Find folders from the paths Glob returns, and do
+  not read inside them.
+- An entry has number `NNN` when its name, before any
+  extension, ends in `-NNN` or `-NNN-<letters>`, where
+  `NNN` is three digits.
+- Give each number one group: a plain line
+  `NNN - <summary>`, then one link per entry on the
+  lines below it. Write the summary from the group's
+  `.md` files. Put the groups in number order with a
+  blank line between them.
+- Within a group, put `ITERATION`, then `FINDINGS`,
+  then `PLAN`, then `REVIEW`, then any other entries
+  alphabetically. Put lettered entries such as
+  `FINDINGS-001-a.md` straight after their base
+  entry, in letter order (`a`, `b` ... `z`, `aa`).
+- Put entries with no number in a last group headed
+  by the plain line `Other`, alphabetically. Leave
+  the group out when there are none.
+- Link a folder as `[<folder>/](<folder>/)`.
 - Only plan lines have a status. It is `Completed`
   when the plan's stats have a `| Status | Completed |`
   row, in the `## Stats` block at the end of the file
