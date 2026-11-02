@@ -54,7 +54,7 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
     command.call(['docs/plans/x/ITERATION-001.md'])
 
     expect(agent.calls.first.last).to include('5. **Update the table of contents.**',
-                                              'If `docs/plans/x/TABLE_OF_CONTENT.md` exists, list',
+                                              'If `docs/plans/x/TABLE-OF-CONTENT.md` exists, list',
                                               '## Table of contents')
   end
 end

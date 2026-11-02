@@ -39,11 +39,11 @@ RSpec.describe Planner::Commands::Toc, :aggregate_failures do
 
   it 'passes the table of contents file to the agent' do
     command.call([folder])
-    expect(call[3]).to eq('docs/plans/x/TABLE_OF_CONTENT.md')
+    expect(call[3]).to eq('docs/plans/x/TABLE-OF-CONTENT.md')
 
     agent.calls.clear
     command.call(["#{folder}/"])
-    expect(call[3]).to eq('docs/plans/x/TABLE_OF_CONTENT.md')
+    expect(call[3]).to eq('docs/plans/x/TABLE-OF-CONTENT.md')
   end
 
   describe 'the prompt' do
@@ -55,9 +55,9 @@ RSpec.describe Planner::Commands::Toc, :aggregate_failures do
     it 'renders the toc prompt' do
       expect(prompt).to start_with("# Table of Contents\n")
       expect(prompt).not_to include('<%', 'do not create it')
-      expect(prompt).to include('You may write only `docs/plans/x/TABLE_OF_CONTENT.md`.', 'replace it entirely',
+      expect(prompt).to include('You may write only `docs/plans/x/TABLE-OF-CONTENT.md`.', 'replace it entirely',
                                 '# Table of contents — x',
-                                'Table of contents written to `docs/plans/x/TABLE_OF_CONTENT.md`.')
+                                'Table of contents written to `docs/plans/x/TABLE-OF-CONTENT.md`.')
     end
   end
 

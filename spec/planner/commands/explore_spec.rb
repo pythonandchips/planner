@@ -50,7 +50,7 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
     it 'passes the table of contents file to the agent' do
       command.call([iteration])
 
-      expect(call[4]).to eq('docs/plans/x/TABLE_OF_CONTENT.md')
+      expect(call[4]).to eq('docs/plans/x/TABLE-OF-CONTENT.md')
     end
 
     it 'gets -a when the findings exist' do
@@ -95,8 +95,8 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
     end
 
     it 'updates the table of contents when it exists' do
-      expect(prompt).to include('If `docs/plans/x/TABLE_OF_CONTENT.md` exists',
-                                'update `docs/plans/x/TABLE_OF_CONTENT.md` as described under')
+      expect(prompt).to include('If `docs/plans/x/TABLE-OF-CONTENT.md` exists',
+                                'update `docs/plans/x/TABLE-OF-CONTENT.md` as described under')
     end
 
     it 'names the brief, the findings file, the folder and the title' do

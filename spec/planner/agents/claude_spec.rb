@@ -23,10 +23,10 @@ RSpec.describe Planner::Agents::Claude do
 
   it 'reviews with the given model, read-only tools and only the report and plan writable' do
     agent.review('review it', model: 'opus', report_file: 'd/REVIEW-001.md', plan_file: 'd/PLAN-001.md',
-                              toc_file: 'd/TABLE_OF_CONTENT.md')
+                              toc_file: 'd/TABLE-OF-CONTENT.md')
 
     expect(calls).to eq([['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write',
-                          '--allowedTools=Edit(d/REVIEW-001.md),Edit(d/PLAN-001.md),Edit(d/TABLE_OF_CONTENT.md)',
+                          '--allowedTools=Edit(d/REVIEW-001.md),Edit(d/PLAN-001.md),Edit(d/TABLE-OF-CONTENT.md)',
                           'review it']])
   end
 
@@ -36,10 +36,10 @@ RSpec.describe Planner::Agents::Claude do
 
   it 'explores with the given model, read-only tools plus WebFetch, and the findings file writable' do
     agent.explore('explore it', model: 'opus', findings_file: 'd/FINDINGS-001.md',
-                                toc_file: 'd/TABLE_OF_CONTENT.md')
+                                toc_file: 'd/TABLE-OF-CONTENT.md')
 
     expect(calls).to eq([['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write,WebFetch',
-                          '--allowedTools=Edit(d/FINDINGS-001.md),Edit(d/TABLE_OF_CONTENT.md),WebFetch',
+                          '--allowedTools=Edit(d/FINDINGS-001.md),Edit(d/TABLE-OF-CONTENT.md),WebFetch',
                           'explore it']])
   end
 
@@ -48,10 +48,10 @@ RSpec.describe Planner::Agents::Claude do
   end
 
   it 'writes the table of contents headless with the given model and only that file writable' do
-    agent.toc('list it', model: 'haiku', toc_file: 'd/TABLE_OF_CONTENT.md')
+    agent.toc('list it', model: 'haiku', toc_file: 'd/TABLE-OF-CONTENT.md')
 
     expect(calls).to eq([['claude', '-p', '--model', 'haiku', '--tools=Read,Grep,Glob,Write',
-                          '--allowedTools=Edit(d/TABLE_OF_CONTENT.md)', 'list it']])
+                          '--allowedTools=Edit(d/TABLE-OF-CONTENT.md)', 'list it']])
   end
 
   it 'defaults the toc model to haiku' do

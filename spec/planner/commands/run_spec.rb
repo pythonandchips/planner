@@ -119,7 +119,7 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
     command.call(['PLAN-001.md'])
 
     expect(agent.calls.first[1]).to include('the stats and the table of',
-                                            '`./TABLE_OF_CONTENT.md` if you updated it',
-                                            'If `./TABLE_OF_CONTENT.md` exists')
+                                            '`./TABLE-OF-CONTENT.md` if you updated it',
+                                            'If `./TABLE-OF-CONTENT.md` exists')
   end
 end
