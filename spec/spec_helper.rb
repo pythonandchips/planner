@@ -35,6 +35,10 @@ class FakeAgent
     'default-model'
   end
 
+  def run_tools
+    %w[Tool]
+  end
+
   def default_review_model
     'default-review-model'
   end

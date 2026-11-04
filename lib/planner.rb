@@ -2,6 +2,7 @@
 
 require 'erb'
 require 'fileutils'
+require 'json'
 require 'optparse'
 require 'pathname'
 require 'yaml'

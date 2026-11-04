@@ -2,12 +2,13 @@
 
 module Planner
   module Agents
-    # Wraps the `claude` CLI. The interface (#plan, #run, #review, #explore, #toc, #default_run_model,
-    # #default_review_model, #default_explore_model, #default_toc_model) is the contract a future
-    # agent must implement.
+    # Wraps the `claude` CLI. The interface (#plan, #run, #run_tools, #review, #explore, #toc,
+    # #default_run_model, #default_review_model, #default_explore_model, #default_toc_model) is the
+    # contract a future agent must implement.
     class Claude
       PLAN_MODEL = 'opus'
       DEFAULT_RUN_MODEL = 'sonnet'
+      RUN_TOOLS = %w[Bash Read Edit Write Glob Grep Skill].freeze
       DEFAULT_REVIEW_MODEL = 'opus'
       REVIEW_TOOLS = 'Read,Grep,Glob,Write'
       DEFAULT_EXPLORE_MODEL = 'opus'
@@ -44,6 +45,10 @@ module Planner
 
       def default_run_model
         DEFAULT_RUN_MODEL
+      end
+
+      def run_tools
+        RUN_TOOLS
       end
 
       def default_review_model

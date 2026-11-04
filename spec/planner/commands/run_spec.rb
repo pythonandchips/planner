@@ -136,6 +136,56 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
     expect { command.call(['nope.md']) }.to raise_error(Planner::Error, 'nope.md does not exist')
   end
 
+  describe '--print' do
+    let(:output) { JSON.parse(context.stdout.string) }
+
+    %w[-p --print].each do |flag|
+      it "prints the prompt, model and allowed tools as JSON for #{flag}" do
+        command.call([flag, 'PLAN-001.md'])
+
+        expect(output.keys).to eq(%w[prompt model allowedTools])
+        expect(output['allowedTools']).to eq(%w[Tool])
+      end
+    end
+
+    it 'pretty-prints the JSON' do
+      command.call(['-p', 'PLAN-001.md'])
+
+      expect(context.stdout.string).to start_with("{\n  \"prompt\": ")
+      expect(context.stdout.string).to end_with("}\n")
+    end
+
+    it 'prints the prompt plain run sends' do
+      command.call(['-p', 'PLAN-001.md'])
+      command.call(['PLAN-001.md'])
+
+      expect(output['prompt']).to eq(agent.calls.first[1])
+    end
+
+    it "prints the agent's default model" do
+      command.call(['--print', 'PLAN-001.md'])
+
+      expect(output['model']).to eq('default-model')
+    end
+
+    it 'prints the chosen model' do
+      command.call(['PLAN-001.md', '-p', '-m', 'x'])
+
+      expect(output['model']).to eq('x')
+      expect(output['prompt']).to include('| Model | x |')
+    end
+
+    it 'does not start the agent' do
+      command.call(['-p', 'PLAN-001.md'])
+
+      expect(agent.calls).to be_empty
+    end
+
+    it 'raises Error for a missing file' do
+      expect { command.call(['-p', 'nope.md']) }.to raise_error(Planner::Error, 'nope.md does not exist')
+    end
+  end
+
   it 'updates the table of contents when it exists' do
     command.call(['PLAN-001.md'])
 

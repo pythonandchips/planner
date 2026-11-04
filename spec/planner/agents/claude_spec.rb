@@ -21,6 +21,10 @@ RSpec.describe Planner::Agents::Claude do
     expect(agent.default_run_model).to eq('sonnet')
   end
 
+  it 'lists the tools a run needs' do
+    expect(agent.run_tools).to eq(%w[Bash Read Edit Write Glob Grep Skill])
+  end
+
   it 'reviews with the given model, read-only tools and only the report and plan writable' do
     agent.review('review it', model: 'opus', report_file: 'd/REVIEW-001.md', plan_file: 'd/PLAN-001.md',
                               toc_file: 'd/TABLE-OF-CONTENT.md')
