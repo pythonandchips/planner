@@ -38,6 +38,27 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
       expect(prompt).to include('what is still left to do')
     end
 
+    it 'fixes failing verification steps' do
+      expect(prompt).to include('5. If a Verification step fails, investigate and fix',
+                                'You may change code and specs, including specs')
+    end
+
+    it 'stops on environment failures' do
+      expect(prompt).to include('- the failure comes from the environment: a',
+                                'a sandbox or permission denial, a missing command,')
+    end
+
+    it 'stops on unrelated failures, fixes against a decision and repeated failures' do
+      expect(prompt).to include("- the failure is not caused by the plan's changes",
+                                "- the fix would go against one of the plan's",
+                                '- the same failure still fails after three fixes')
+    end
+
+    it 'adds the deviations before the stats' do
+      expect(prompt).to include('end of `PLAN-001.md`, before the',
+                                "## Deviations\n\n- <what failed> failed because <cause>; changed")
+    end
+
     it 'ends with the plan, keeping inner newlines and stripping trailing ones' do
       expect(prompt).to end_with("## Plan\n\nline one\n\nline two\n")
     end
@@ -46,10 +67,10 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
       expect(prompt).to include('Before anything else, run `date -u +%Y-%m-%dT%H:%M:%SZ`')
     end
 
-    it 'writes the stats on finish and on stop, staging the plan file' do
+    it 'writes the deviations and stats on finish and on stop, staging the plan file and fixed files' do
       expect(prompt).to include(
-        '6. Write the stats when you finish and when you',
-        'stage `PLAN-001.md` with the commit'
+        '7. Write the deviations, then the stats, when you',
+        'stage `PLAN-001.md` and every file'
       )
     end
 
