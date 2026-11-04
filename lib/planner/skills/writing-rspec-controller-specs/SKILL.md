@@ -1,6 +1,6 @@
 ---
 name: writing-rspec-controller-specs
-description: 'Rules for writing or editing Rails controller or request specs, used alongside the writing-rspec skill. Use this skill whenever you add or change examples in a spec under spec/controllers or spec/requests: records are created with let!, the request is the first line of the example, the response status is checked first, and every expectation about one request lives in one example.'
+description: 'Rules for writing or editing Rails controller or request specs, used alongside the writing-rspec skill. Use this skill whenever you add or change examples in a spec under spec/controllers or spec/requests: the request is the first line of the example, the response status is checked first, and every expectation about one request lives in one example.'
 ---
 
 # Writing RSpec controller specs
@@ -16,12 +16,8 @@ before the other expectations run.
 
 ## Setup
 
-Creating records in `before` and then making the request there too forces every `it` to
-rebuild the records and hides which action an example runs.
+Making the request in `before` hides which action an example runs.
 
-- Create the records the request needs with `let!`, or with `let` when an example
-  references the value and it doesn't have to exist before the request. Never create
-  records in `before`.
 - `before` only prepares the request: headers, sign-in, stubs. It never makes the request.
   Signing in a lazy `let` record there, as in `before { sign_in user }` with
   `let(:user)`, is allowed.
@@ -42,12 +38,8 @@ rebuild the records and hides which action an example runs.
 ```ruby
 # Bad
   context "when requested from a turbo frame with widget activity" do
-    let(:widget) { project.widgets.first }
 
     before do
-      create(:widget_sale, widget: widget, amount: 150, dated_on: Date.yesterday)
-      create(:widget_review, widget: widget, marked_for_review: true)
-
       request.headers["Turbo-Frame"] = "widgets-chart"
       get :index
     end
@@ -71,9 +63,6 @@ rebuild the records and hides which action an example runs.
 
 # Good
   context "when requested from a turbo frame with widget activity" do
-    let(:widget) { project.widgets.first }
-    let!(:widget_sale) { create(:widget_sale, widget: widget, amount: 150, dated_on: Date.yesterday) }
-    let!(:widget_review) { create(:widget_review, widget: widget, marked_for_review: true) }
 
     before do
       request.headers["Turbo-Frame"] = "widgets-chart"

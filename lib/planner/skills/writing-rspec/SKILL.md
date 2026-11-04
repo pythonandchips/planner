@@ -1,13 +1,13 @@
 ---
 name: writing-rspec
-description: 'Rules for writing or editing RSpec specs. Use this skill whenever you add or change describe, context or it blocks or expectations in a spec file: descriptions say what the code does, in the present tense without "should", and expectations are separate lines rather than compound .and matchers.'
+description: 'Rules for writing or editing RSpec specs. Use this skill whenever you add or change describe, context or it blocks or expectations in a spec file: descriptions say what the code does, in the present tense without "should", and expectations are separate lines rather than compound .and matchers, and objects are set up with let! or let rather than in before blocks.'
 ---
 
 # Writing RSpec
 
-Follow these two rules whenever you write or edit a spec. They apply only to the
-descriptions and expectations you write or change. Do not rewrite existing specs that the
-task does not otherwise touch.
+Follow these three rules whenever you write or edit a spec. They apply only to the
+descriptions, expectations and setup you write or change. Do not rewrite existing specs
+that the task does not otherwise touch.
 
 ## Descriptions say what the code does, not how
 
@@ -51,7 +51,76 @@ it 'reports the files it wrote', :aggregate_failures do
 end
 ```
 
+## Set up objects with let, not before
+
+Objects created in `before` have no name, so examples can't refer to them and readers can't
+see what each example depends on.
+
+- Create every object the examples need with `let!`, or with `let` when an example
+  references the value and it doesn't have to exist before the example runs. This covers
+  FactoryBot (`create`, `create_list`, `build`, `build_stubbed`, ...), objects made by hand
+  (`Widget.new`, `Widget.create`, ...) and test doubles (`double`,
+  `instance_double`, `spy`, ...). Never create them in `before`.
+- Several objects of the same kind can each have their own `let!` or share one `let!` that
+  returns an array. Either is fine.
+- `before` only does setup that doesn't instantiate objects: stubs (`allow(...).to receive`,
+  `expect(...).to receive`), sign-in, headers, time travel, config.
+- Write hooks as plain `before do ... end`. Never use `before(:all)` or `before(:context)`,
+  and don't write the `:each` or `:example` argument.
+
+```ruby
+# Bad
+RSpec.describe Widgets::WidgetMetrics do
+  subject(:metrics) { described_class.new(widget: second_widget) }
+
+  let(:project) { create(:project) }
+  let(:first_widget) { project.widgets.first }
+  let(:second_widget) { create(:widget, project: project) }
+
+  before do
+    create(:widget_sale, widget: first_widget, amount: 150, dated_on: Date.yesterday)
+    create(:widget_review, widget: first_widget, marked_for_review: true)
+
+    create(:widget_sale, widget: second_widget, amount: 40, dated_on: Date.yesterday)
+    create(:widget_review, widget: second_widget, marked_for_review: true)
+  end
+
+  describe "#total_sales" do
+    it "returns the total sales of the widget only" do
+      expect(metrics.total_sales).to eq("140")
+    end
+  end
+end
+
+# Good
+RSpec.describe Widgets::WidgetMetrics do
+  subject(:metrics) { described_class.new(widget: second_widget) }
+
+  let(:project) { create(:project) }
+  let(:first_widget) { project.widgets.first }
+  let(:second_widget) { create(:widget, project: project) }
+  let!(:widget_sales) do
+    [
+      create(:widget_sale, widget: first_widget, amount: 150, dated_on: Date.yesterday),
+      create(:widget_sale, widget: second_widget, amount: 40, dated_on: Date.yesterday)
+    ]
+  end
+  let!(:widget_reviews) do
+    [
+      create(:widget_review, widget: second_widget, marked_for_review: true),
+      create(:widget_review, widget: first_widget, marked_for_review: true)
+    ]
+  end
+
+  describe "#total_sales" do
+    it "returns the total sales of the widget only" do
+      expect(metrics.total_sales).to eq("140")
+    end
+  end
+end
+```
+
 ## Before you finish
 
-Check each description and expectation you wrote or changed against the rules above and fix
-any that break them.
+Check each description, expectation and piece of setup you wrote or changed against the
+rules above and fix any that break them.
