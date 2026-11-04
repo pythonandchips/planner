@@ -28,7 +28,7 @@ RSpec.describe 'exe/planner', :aggregate_failures do # rubocop:disable RSpec/Des
     out, _err, status = planner('skills', 'list')
 
     expect(status.exitstatus).to eq(0)
-    expect(out).to match(/\Acommit-message  \S/)
+    expect(out).to match(/\Acommit-message +\S/)
   end
 
   it 'reports a missing iteration file' do
