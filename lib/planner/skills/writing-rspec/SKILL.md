@@ -5,9 +5,9 @@ description: 'Rules for writing or editing RSpec specs. Use this skill whenever 
 
 # Writing RSpec
 
-Follow these three rules whenever you write or edit a spec. They apply only to the
-descriptions, expectations and setup you write or change. Do not rewrite existing specs
-that the task does not otherwise touch.
+Follow these four rules whenever you write or edit a spec. They apply only to the
+descriptions, expectations, setup and class references you write or change. Do not rewrite
+existing specs that the task does not otherwise touch.
 
 ## Descriptions say what the code does, not how
 
@@ -71,7 +71,7 @@ see what each example depends on.
 ```ruby
 # Bad
 RSpec.describe Widgets::WidgetMetrics do
-  subject(:metrics) { described_class.new(widget: second_widget) }
+  subject(:metrics) { Widgets::WidgetMetrics.new(widget: second_widget) }
 
   let(:project) { create(:project) }
   let(:first_widget) { project.widgets.first }
@@ -94,7 +94,7 @@ end
 
 # Good
 RSpec.describe Widgets::WidgetMetrics do
-  subject(:metrics) { described_class.new(widget: second_widget) }
+  subject(:metrics) { Widgets::WidgetMetrics.new(widget: second_widget) }
 
   let(:project) { create(:project) }
   let(:first_widget) { project.widgets.first }
@@ -120,7 +120,29 @@ RSpec.describe Widgets::WidgetMetrics do
 end
 ```
 
+## Name the class under test, not described_class
+
+The full class name shows which class an example uses without scrolling up to the
+`describe` line, and it can be searched for. `described_class` hides both.
+
+- Never use `described_class`. Write the class's fully qualified name instead, as in the
+  `RSpec.describe` line: `Widgets::WidgetMetrics`, not `WidgetMetrics` and not
+  `::Widgets::WidgetMetrics`. This covers every use: `subject`, `let`, inside
+  examples, constants (`Widgets::WidgetMetrics::LIMIT`), doubles
+  (`instance_double(Widgets::WidgetMetrics)`) and message expectations.
+- Exception: inside `shared_examples` or `shared_context` used by more than one class,
+  `described_class` is allowed. If the shared block is used by only one class, write the
+  full name.
+
+```ruby
+# Bad
+subject(:metrics) { described_class.new(widget: widget) }
+
+# Good
+subject(:metrics) { Widgets::WidgetMetrics.new(widget: widget) }
+```
+
 ## Before you finish
 
-Check each description, expectation and piece of setup you wrote or changed against the
-rules above and fix any that break them.
+Check each description, expectation, piece of setup and class reference you wrote or
+changed against the rules above and fix any that break them.
