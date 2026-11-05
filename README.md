@@ -32,6 +32,7 @@ planner new "Add login"  # => docs/plans/202610271216-add-login
 These ship with planner and are installed with `planner skills install`.
 
 - `commit-message`: makes the agent write commit messages in plain English, with a body that says what changed and why, an `Assisted-by:` trailer instead of `Co-Authored-By:`, and the usual subject and wrapping rules.
+- `writing-erb`: makes the agent test a condition once in ERB templates, with `if`/`else` around the element and each branch holding the complete markup for that case, while a condition used only once stays inline.
 - `writing-rspec`: makes the agent write spec descriptions that say what the code does, not how, in the present tense without "should", and use separate `expect` lines instead of `.and` matchers, and set up test objects with `let!` or `let` instead of in `before` blocks.
 - `writing-rspec-controller-specs`: makes the agent write Rails controller and request specs with the request on the first line of each example, the response status checked first, and one example per request.
 
