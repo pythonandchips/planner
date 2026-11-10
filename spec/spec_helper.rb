@@ -27,6 +27,10 @@ class FakeAgent
     @calls << [:explore, prompt, model, findings_file, toc_file]
   end
 
+  def summarise(prompt, model:, summary_base:, toc_file:)
+    @calls << [:summarise, prompt, model, summary_base, toc_file]
+  end
+
   def toc(prompt, model:, toc_file:)
     @calls << [:toc, prompt, model, toc_file]
   end
@@ -45,6 +49,10 @@ class FakeAgent
 
   def default_explore_model
     'default-explore-model'
+  end
+
+  def default_summarise_model
+    'default-summarise-model'
   end
 
   def default_toc_model

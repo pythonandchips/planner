@@ -51,6 +51,18 @@ RSpec.describe Planner::Agents::Claude do
     expect(agent.default_explore_model).to eq('opus')
   end
 
+  it 'summarises with the given model, shell and web tools, and only the summary paths and toc writable' do
+    agent.summarise('sum it', model: 'opus', summary_base: 'd/SUMMARY-001', toc_file: 'd/TABLE-OF-CONTENT.md')
+
+    expect(calls).to eq([['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write,Bash,WebFetch,Skill',
+                          '--allowedTools=Edit(d/SUMMARY-001.*),Edit(d/SUMMARY-001/**),Edit(d/TABLE-OF-CONTENT.md)',
+                          'sum it']])
+  end
+
+  it 'defaults the summarise model to opus' do
+    expect(agent.default_summarise_model).to eq('opus')
+  end
+
   it 'writes the table of contents headless with the given model and only that file writable' do
     agent.toc('list it', model: 'haiku', toc_file: 'd/TABLE-OF-CONTENT.md')
 
