@@ -2,7 +2,7 @@
 
 - **plan folder**: A directory at `docs/plans/<YYYYMMDDHHMM>-<slug>/` that holds the iteration and plan files for one piece of work. Created by `planner new`.
 - **iteration file**: `ITERATION-<NNN>.md`. The brief for one iteration of work.
-- **plan file**: `PLAN-<NNN>.md`. The implementation plan written from an iteration file by `planner plan`.
+- **plan file**: `PLAN-<NNN>.md`. The implementation plan written from an iteration file by `planner plan`. Its Commit section says what to commit, or says not to commit, as the user chose when planning.
 - **review file**: `REVIEW-<NNN>.md`, or `REVIEW-<NNN>-<letter>.md` for a later review of the same plan. A plain-English review of a plan file, written by `planner review`. When the user has the review session apply suggestions to the plan, each applied item gets an `**Applied:**` line.
 - **findings file**: `FINDINGS-<NNN>.md`, or `FINDINGS-<NNN>-<letter>.md` for a later exploration of the same iteration. Answers to the questions in an iteration file, found by exploring the code, data or web pages. It opens with a summary and recommendations. It is rewritten after each round of exploration, and gets its stats when you finish. Written by `planner explore`, and never executed.
 - **summary file**: `SUMMARY-<NNN>.<ext>`, or a `SUMMARY-<NNN>/` folder when the output is more than one file, with `-<letter>` added for a later summary with the same number. A summary of a plan, review or findings file in the format its brief asked for, written by `planner summarise` only when the brief asks for it on disk.

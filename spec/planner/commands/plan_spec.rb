@@ -20,6 +20,24 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
     expect(agent.calls.first.last).not_to include('<%')
   end
 
+  it 'asks whether to commit every time and records the answer' do
+    write_iteration('ITERATION-001.md')
+    command.call(['docs/plans/x/ITERATION-001.md'])
+
+    expect(agent.calls.first.last).to include("ask the user whether they want this plan's",
+                                              'Ask every time, even if an earlier plan in the folder answered',
+                                              'Record the answer as a `Commit` row')
+  end
+
+  it 'gives the do-not-commit text for a plan that is not committed' do
+    write_iteration('ITERATION-001.md')
+    command.call(['docs/plans/x/ITERATION-001.md'])
+
+    prompt = agent.calls.first.last
+    expect(prompt).to include('- If no, write exactly this as the whole body of the Commit section:')
+    expect(prompt).to include('`Do not commit. Do not stage any files. Leave every change in the working tree.`')
+  end
+
   it 'zero-pads the plan number' do
     write_iteration('ITERATION-3.md')
 

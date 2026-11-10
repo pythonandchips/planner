@@ -17,10 +17,16 @@ Turn the brief `<%= iteration_file %>` into an implementation plan
 3. **Write `<%= plan_file %>`.** Follow the structure below. Keep it concise and
    unambiguous. A developer should be able to execute it without needing to ask a
    follow-up question.
-4. **End the plan with a Commit section.** State exactly what to stage and give a
-   suggested commit message, with the instruction that the commit happens only after the
-   plan's change has actually been made (implemented and verified), never before. If `<%= toc_file %>` exists, list
-   it in what to stage.
+4. **End the plan with a Commit section.** Once every other question has an answer,
+   and before you write `<%= plan_file %>`, ask the user whether they want this plan's
+   change committed. Ask every time, even if an earlier plan in the folder answered
+   it. Record the answer as a `Commit` row (`Yes` or `No`) in the Decisions table.
+   - If yes, state exactly what to stage and give a suggested commit message, with
+     the instruction that the commit happens only after the plan's change has
+     actually been made (implemented and verified), never before. If `<%= toc_file %>` exists, list
+     it in what to stage.
+   - If no, write exactly this as the whole body of the Commit section:
+     `Do not commit. Do not stage any files. Leave every change in the working tree.`
 5. **Update the table of contents.** After writing `<%= plan_file %>`, update
    `<%= toc_file %>` as described under "Table of contents".
 
@@ -53,7 +59,8 @@ Match the convention already used by `PLAN-*.md` files elsewhere in `docs/plans/
 
 ## Commit
 
-<what to stage and a suggested commit message, contingent on verification passing>
+<what to stage and a suggested commit message, contingent on verification passing, or the
+do-not-commit text from step 4>
 ```
 
 The "Decisions" table records every question you asked and how the user answered it.

@@ -45,11 +45,17 @@ and keep the output as the start time.
    contents as described under "Table of contents".
    When you finish, do all three after every
    Verification step passes and before the Commit
-   step, and stage `<%= plan_file %>` and every file
+   step, and, unless rule 8 applies,
+   stage `<%= plan_file %>` and every file
    you changed under rule 5 with the commit even if
    the Commit section does not list them, along with
    `<%= toc_file %>` if you updated it. When you
    stop, do all three but still do not commit.
+8. If the plan's Commit section says
+   "Do not commit.", do not stage or commit
+   anything. Skip the Commit step and leave every
+   change, including `<%= plan_file %>` and
+   `<%= toc_file %>`, unstaged.
 
 ## Deviations
 

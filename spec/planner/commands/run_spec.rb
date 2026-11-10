@@ -74,6 +74,14 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
       )
     end
 
+    it 'stages and commits nothing when the plan says not to commit' do
+      expect(prompt).to include('step, and, unless rule 8 applies,',
+                                "8. If the plan's Commit section says",
+                                '"Do not commit.", do not stage or commit',
+                                'change, including `PLAN-001.md` and',
+                                '`./TABLE-OF-CONTENT.md`, unstaged.')
+    end
+
     it 'appends the stats to the plan file' do
       expect(prompt).to include('end of `PLAN-001.md`, below everything already',
                                 "---\n\n## Stats\n\n| Field | Value |")
