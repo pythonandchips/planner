@@ -15,7 +15,7 @@ module Planner
     }.freeze
 
     USAGE = <<~TEXT
-      usage: planner new <given-name>
+      usage: planner new [--dir <folder>] <given-name>
              planner plan <iteration-file>
              planner run [--model <model>] [--print] <plan-file>
              planner review [--model <model>] [--lens <text>|-] <plan-file>

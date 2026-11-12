@@ -20,6 +20,21 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
     expect(agent.calls.first.last).not_to include('<%')
   end
 
+  it 'names the parent of the plan folder as the place for other plans' do
+    write_iteration('ITERATION-001.md')
+    command.call(['docs/plans/x/ITERATION-001.md'])
+
+    expect(agent.calls.first.last).to include('elsewhere in `docs/plans/`:')
+  end
+
+  it 'names the parent folder for an iteration kept outside docs/plans' do
+    FileUtils.mkdir_p('work/x')
+    File.write('work/x/ITERATION-001.md', 'x')
+    command.call(['work/x/ITERATION-001.md'])
+
+    expect(agent.calls.first.last).to include('elsewhere in `work/`:')
+  end
+
   it 'asks whether to commit every time and records the answer' do
     write_iteration('ITERATION-001.md')
     command.call(['docs/plans/x/ITERATION-001.md'])
