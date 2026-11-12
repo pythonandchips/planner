@@ -1,0 +1,101 @@
+plugins:
+  - rubocop-rspec
+
+require:
+  - ./cops/no_compound_matcher.rb
+  - ./cops/no_objects_in_before.rb
+  - ./cops/no_request_in_before.rb
+  - ./cops/request_first.rb
+  - ./cops/status_checked_first.rb
+
+# writing-rspec: write descriptions in the present tense without "should" (checks `it` only).
+RSpec/ExampleWording:
+  Enabled: true
+
+# writing-rspec: never use described_class; write the class's fully qualified name.
+RSpec/DescribedClass:
+  Enabled: true
+  EnforcedStyle: explicit
+  SkipBlocks: true
+
+# writing-rspec: write hooks as plain `before do ... end`, without :each or :example.
+RSpec/HookArgument:
+  Enabled: true
+  EnforcedStyle: implicit
+
+# writing-rspec: never use before(:all) or before(:context).
+RSpec/BeforeAfterAll:
+  Enabled: true
+
+# writing-rspec: one expect per line, with the example tagged :aggregate_failures (not in controller or request specs).
+RSpec/MultipleExpectations:
+  Enabled: true
+  Max: 1
+  Exclude:
+    - spec/controllers/**/*
+    - spec/requests/**/*
+
+# writing-rspec: do not chain expectations with .and or &.
+Planner/NoCompoundMatcher:
+  Enabled: true
+  Include:
+    - '**/*_spec.rb'
+
+# writing-rspec: create objects with let! or let, never in before.
+Planner/NoObjectsInBefore:
+  Enabled: true
+  Include:
+    - '**/*_spec.rb'
+  CreationMethods:
+    - create
+    - create_list
+    - build
+    - build_stubbed
+    - build_list
+    - double
+    - instance_double
+    - class_double
+    - spy
+    - instance_spy
+  ConstructorMethods:
+    - new
+    - create
+  TimeTravelMethods:
+    - travel_to
+    - travel
+    - freeze_time
+
+# writing-rspec-controller-specs: before only prepares the request; it never makes it.
+Planner/NoRequestInBefore:
+  Enabled: true
+  Include:
+    - spec/controllers/**/*_spec.rb
+    - spec/requests/**/*_spec.rb
+  RequestMethods:
+    - get
+    - post
+    - put
+    - patch
+    - delete
+    - head
+
+# writing-rspec-controller-specs: make the request on the first line of the example, followed by a blank line.
+Planner/RequestFirst:
+  Enabled: true
+  Include:
+    - spec/controllers/**/*_spec.rb
+    - spec/requests/**/*_spec.rb
+  RequestMethods:
+    - get
+    - post
+    - put
+    - patch
+    - delete
+    - head
+
+# writing-rspec-controller-specs: the first expectation checks have_http_status, followed by a blank line.
+Planner/StatusCheckedFirst:
+  Enabled: true
+  Include:
+    - spec/controllers/**/*_spec.rb
+    - spec/requests/**/*_spec.rb
