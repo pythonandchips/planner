@@ -90,4 +90,16 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
                                               'If `docs/plans/x/TABLE-OF-CONTENT.md` exists, list',
                                               '## Table of contents')
   end
+
+  it 'reads the table of contents before the other plan folder files' do # rubocop:disable RSpec/ExampleLength
+    write_iteration('ITERATION-001.md')
+    command.call(['docs/plans/x/ITERATION-001.md'])
+
+    prompt = agent.calls.first.last
+    expect(prompt).to include("Do not read the folder's other `ITERATION-*.md` files.",
+                              '`docs/plans/x/TABLE-OF-CONTENT.md` exists, read it.',
+                              'If a question later turns on a listed file you skipped,',
+                              '`docs/plans/x/TABLE-OF-CONTENT.md` does not exist, read every `PLAN-*.md` and')
+    expect(prompt).not_to include('Read the whole folder')
+  end
 end

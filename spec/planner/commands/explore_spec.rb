@@ -99,6 +99,14 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
                                 'update `docs/plans/x/TABLE-OF-CONTENT.md` as described under')
     end
 
+    it 'reads the table of contents before the other plan folder files' do
+      expect(prompt).to include("read the folder's other `ITERATION-*.md` files.",
+                                '`docs/plans/x/TABLE-OF-CONTENT.md` exists, read it.',
+                                'later turns on a listed file you skipped, read it',
+                                '`docs/plans/x/TABLE-OF-CONTENT.md` does not exist, read')
+      expect(prompt).not_to include('Read the whole folder')
+    end
+
     it 'names the brief, the findings file, the folder and the title' do
       expect(prompt).to include('Answer the brief `docs/plans/x/ITERATION-001.md`', '`docs/plans/x/FINDINGS-001.md`',
                                 '`docs/plans/x/`', '# FINDINGS-001 — <short title>')

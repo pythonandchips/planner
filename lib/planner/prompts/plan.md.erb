@@ -5,10 +5,14 @@ Turn the brief `<%= iteration_file %>` into an implementation plan
 
 ## Steps
 
-1. **Read the whole folder, not just the one file.** Read `<%= iteration_file %>`,
-   plus every other `ITERATION-*.md` and `PLAN-*.md` already in `<%= folder %>/`. Earlier
-   plans record decisions that still apply. Treat them as established context, not
-   something to ask about again.
+1. **Read the brief, then the plans and findings it builds on.** Read
+   `<%= iteration_file %>`. Do not read the folder's other `ITERATION-*.md` files. If
+   `<%= toc_file %>` exists, read it. In this step, read only the `PLAN-*.md` and
+   `FINDINGS-*.md` files it lists that look relevant to the brief, and no file in the
+   folder it does not list. If a question later turns on a listed file you skipped,
+   read it then. If `<%= toc_file %>` does not exist, read every `PLAN-*.md` and
+   `FINDINGS-*.md` in `<%= folder %>/`. Earlier plans and findings record decisions that
+   still apply. Treat them as established context, not something to ask about again.
 2. **Resolve every open question before writing anything.** Do not assume a requirement,
    guess at a default, or fill a gap silently. Read the brief and list every
    decision point it leaves open, then ask the user about all of them together. Keep
