@@ -1,6 +1,6 @@
 # Review Plan
 
-Review the plan `<%= plan_file %>` and write the review to
+Review the plan `<%= source_file %>` and write the review to
 `<%= review_file %>`. Read the plan, then read the parts of the
 codebase it touches and check the plan against them. Do not
 read other files in the plan folder, except to update
@@ -13,7 +13,7 @@ contents". Never use them to inform the review.
    and the table of contents as described under
    "Applying suggestions" and "Table of contents".
 2. You may write only `<%= review_file %>`,
-   `<%= plan_file %>` when the user asks you to
+   `<%= source_file %>` when the user asks you to
    apply suggestions, and `<%= toc_file %>` as
    described under "Table of contents".
 3. Use read-only exploration only.
@@ -93,7 +93,7 @@ List every finding and concern, one line each. Write
 ## Applying suggestions
 
 If the user asks you to apply suggestions from the
-review, edit `<%= plan_file %>` to make only those
+review, edit `<%= source_file %>` to make only those
 changes. Then update `<%= review_file %>`: under
 each finding, concern or recommendation you
 applied, add the line
@@ -105,7 +105,7 @@ Change nothing else in the review. Then update
 contents". Then reply here in exactly this format:
 
 ```
-Applied to `<%= plan_file %>` and marked in
+Applied to `<%= source_file %>` and marked in
 `<%= review_file %>`:
 - <the item in one line>: <what changed in the plan>
 ```

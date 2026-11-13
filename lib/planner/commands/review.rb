@@ -2,10 +2,12 @@
 
 module Planner
   module Commands
-    # Renders the review prompt for a plan file and hands it to the agent.
+    # Renders the review prompt for a plan or findings file and hands it to the agent.
     class Review
-      TEMPLATE = File.expand_path('../prompts/review.md.erb', __dir__)
-      PLAN_NAME = /\APLAN-(\d+)\.md\z/
+      PLAN_TEMPLATE = File.expand_path('../prompts/review.md.erb', __dir__)
+      FINDINGS_TEMPLATE = File.expand_path('../prompts/review_findings.md.erb', __dir__)
+      # The files that can be reviewed. The plan number is in group 1, the findings number in group 2.
+      SOURCE_NAME = /\A(?:PLAN-(\d+)|FINDINGS-(\d+)(?:-[a-z]+)?)\.md\z/
 
       def initialize(context)
         @context = context
@@ -16,19 +18,26 @@ module Planner
         raise UsageError if model.empty? || args.size != 1
 
         file = args.first
-        number = File.basename(file)[PLAN_NAME, 1]
-        raise Error, "#{file} is not a PLAN-<N>.md file" unless number
-        raise Error, "#{file} does not exist" unless File.file?(file)
-
-        run_review(file, number, model, read_lens(lens))
+        match = source_match(file)
+        template = match[1] ? PLAN_TEMPLATE : FINDINGS_TEMPLATE
+        run_review(file, match[1] || match[2], template, model, read_lens(lens))
       end
 
       private
 
-      def run_review(file, number, model, lens)
+      def source_match(file)
+        match = File.basename(file).match(SOURCE_NAME)
+        raise Error, "#{file} is not a PLAN-<N>.md or FINDINGS-<N>.md file" unless match
+        raise Error, "#{file} does not exist" unless File.file?(file)
+
+        match
+      end
+
+      def run_review(file, number, template, model, lens)
         review_file = review_file(file, number)
-        @context.agent.review(prompt(file, review_file, lens), model:, report_file: review_file, plan_file: file,
-                                                               toc_file: TableOfContent.path(File.dirname(file)))
+        toc_file = TableOfContent.path(File.dirname(file))
+        @context.agent.review(prompt(template, file, review_file, lens), model:, report_file: review_file,
+                                                                         source_file: file, toc_file:)
       end
 
       # REVIEW-<NNN>.md, or the first free REVIEW-<NNN>-a.md, -b ... -z, -aa ... after it.
@@ -50,11 +59,11 @@ module Planner
         lens unless lens.nil? || lens.empty?
       end
 
-      def prompt(file, review_file, lens)
+      def prompt(template, file, review_file, lens)
         title = "#{File.basename(review_file, '.md')} — #{file}"
         folder = File.dirname(file)
-        ERB.new(File.read(TEMPLATE), trim_mode: '-').result_with_hash(
-          plan_file: file, review_file:, lens:, title:, toc_file: TableOfContent.path(folder),
+        ERB.new(File.read(template), trim_mode: '-').result_with_hash(
+          source_file: file, review_file:, lens:, title:, toc_file: TableOfContent.path(folder),
           table_of_content: TableOfContent.section(folder, update: true)
         )
       end

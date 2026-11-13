@@ -1,0 +1,118 @@
+# Review Findings
+
+Review the findings `<%= source_file %>` and write
+the review to `<%= review_file %>`. Read the
+findings, then read the parts of the codebase they
+touch and check the findings against them. Do not
+read other files in the plan folder, except to update
+the table of contents as described under "Table of
+contents". Never use them to inform the review.
+
+## Rules
+
+1. Do not modify repository files, except the
+   findings and the table of contents as described
+   under "Applying suggestions" and "Table of
+   contents".
+2. You may write only `<%= review_file %>`,
+   `<%= source_file %>` when the user asks you to
+   apply suggestions, and `<%= toc_file %>` as
+   described under "Table of contents".
+3. Use read-only exploration only.
+4. Focus on concrete findings with evidence.
+5. Include file paths and line numbers where applicable.
+6. Separate high-confidence findings from lower-confidence
+   concerns.
+7. Write in plain English.
+
+## Focus
+
+<% if lens -%>
+Review the findings only through the lens below. Leave
+out anything outside it.
+
+<%= lens %>
+<% else -%>
+Check that:
+
+1. The findings' claims match the code: the
+   files, methods and line references they name
+   exist and say what the findings say they do.
+2. Every question under `## Questions` is
+   answered.
+3. The recommendations follow from the evidence.
+4. Nothing is ambiguous enough that a reader
+   would have to ask a question.
+5. The findings do not miss risks or
+   alternatives.
+<% end -%>
+
+## Report
+
+Write `<%= review_file %>` with these sections, in order:
+
+- `# <%= title %>`
+<% if lens -%>
+- `## Lens`: the lens in one or two sentences
+<% end -%>
+- `## Summary`
+- `## High-confidence findings`
+- `## Lower-confidence concerns`
+- `## Top recommendations`: a short list
+
+Write "None." under a findings section with nothing in it.
+
+After writing `<%= review_file %>`, update
+`<%= toc_file %>` as described under "Table of
+contents".
+
+## Summary for the user
+
+When the file is written, reply here with a plain-English
+summary in exactly this format:
+
+```
+Review written to `<%= review_file %>`.
+
+<% if lens -%>
+**Lens:** <the lens in one sentence>
+
+<% end -%>
+**Summary:** <one or two sentences>
+
+**High-confidence findings:**
+- <file:line where there is one>: <the finding in one line>
+
+**Lower-confidence concerns:**
+- <file:line where there is one>: <the concern in one line>
+
+**Top recommendations:**
+1. <the recommendation in one line>
+```
+
+List every finding and concern, one line each. Write
+"None." after a label with nothing under it.
+
+## Applying suggestions
+
+If the user asks you to apply suggestions from the
+review, edit `<%= source_file %>` to make only those
+changes. Then update `<%= review_file %>`: under
+each finding, concern or recommendation you
+applied, add the line
+
+**Applied:** <what changed in the findings, in one line>
+
+Change nothing else in the review. Then update
+`<%= toc_file %>` as described under "Table of
+contents". Then reply here in exactly this format:
+
+```
+Applied to `<%= source_file %>` and marked in
+`<%= review_file %>`:
+- <the item in one line>: <what changed in the findings>
+```
+
+## Table of contents
+
+<%= table_of_content %>

@@ -194,11 +194,18 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
       end
     end
 
-    it 'rejects a file that is not a PLAN-<N>.md file' do
+    it 'rejects a file that is not a plan or findings file' do
       File.write('docs/plans/x/notes.md', '')
 
       expect { command.call(['docs/plans/x/notes.md']) }
-        .to raise_error(Planner::Error, 'docs/plans/x/notes.md is not a PLAN-<N>.md file')
+        .to raise_error(Planner::Error, 'docs/plans/x/notes.md is not a PLAN-<N>.md or FINDINGS-<N>.md file')
+    end
+
+    it 'rejects a lettered plan file' do
+      File.write('docs/plans/x/PLAN-001-a.md', '')
+
+      expect { command.call(['docs/plans/x/PLAN-001-a.md']) }
+        .to raise_error(Planner::Error, 'docs/plans/x/PLAN-001-a.md is not a PLAN-<N>.md or FINDINGS-<N>.md file')
     end
 
     it 'rejects a missing plan file' do
@@ -208,7 +215,73 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
 
     it 'checks the name before the existence' do
       expect { command.call(['nope.md']) }
-        .to raise_error(Planner::Error, 'nope.md is not a PLAN-<N>.md file')
+        .to raise_error(Planner::Error, 'nope.md is not a PLAN-<N>.md or FINDINGS-<N>.md file')
+    end
+  end
+
+  describe 'a findings file' do
+    let(:findings) { 'docs/plans/x/FINDINGS-001.md' }
+
+    before { File.write(findings, "the findings\n") }
+
+    it 'passes the findings file to the agent' do
+      command.call([findings])
+
+      expect(call[0]).to eq(:review)
+      expect(call[3]).to eq('docs/plans/x/REVIEW-001.md')
+      expect(call[4]).to eq('docs/plans/x/FINDINGS-001.md')
+      expect(call[5]).to eq('docs/plans/x/TABLE-OF-CONTENT.md')
+    end
+
+    it 'shares the REVIEW series with the plan' do
+      File.write('docs/plans/x/REVIEW-001.md', '')
+      command.call([findings])
+
+      expect(call[3]).to eq('docs/plans/x/REVIEW-001-a.md')
+    end
+
+    it 'accepts a lettered findings file' do
+      File.write('docs/plans/x/FINDINGS-002-aa.md', '')
+      command.call(['docs/plans/x/FINDINGS-002-aa.md'])
+
+      expect(call[3]).to eq('docs/plans/x/REVIEW-002.md')
+      expect(call[4]).to eq('docs/plans/x/FINDINGS-002-aa.md')
+    end
+
+    describe 'the findings prompt' do
+      def prompt
+        command.call([findings])
+        call[1]
+      end
+
+      it 'starts with the findings heading and names the file and the title' do
+        expect(prompt).to start_with("# Review Findings\n")
+        expect(prompt).to include('Review the findings `docs/plans/x/FINDINGS-001.md`',
+                                  '`# REVIEW-001 — docs/plans/x/FINDINGS-001.md`')
+      end
+
+      it 'has the findings checklist and lets the agent apply suggestions' do
+        expect(prompt).to include('Every question under `## Questions`',
+                                  'edit `docs/plans/x/FINDINGS-001.md` to make only those',
+                                  '**Applied:** <what changed in the findings, in one line>')
+      end
+
+      it 'has no plan heading, lens section or ERB leftovers' do
+        expect(prompt).not_to include('# Review Plan', '## Lens', '<%')
+      end
+    end
+
+    it 'narrows a findings review to the lens' do
+      command.call(['--lens', 'check security', findings])
+      prompt = call[1]
+
+      expect(prompt).to include('Review the findings only through the lens below', "check security\n", '`## Lens`')
+      expect(prompt).not_to include('Check that:')
+    end
+
+    it 'reports a missing findings file' do
+      expect { command.call(['docs/plans/x/FINDINGS-009.md']) }
+        .to raise_error(Planner::Error, 'docs/plans/x/FINDINGS-009.md does not exist')
     end
   end
 end

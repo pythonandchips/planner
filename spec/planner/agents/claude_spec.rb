@@ -26,7 +26,7 @@ RSpec.describe Planner::Agents::Claude do
   end
 
   it 'reviews with the given model, read-only tools and only the report and plan writable' do
-    agent.review('review it', model: 'opus', report_file: 'd/REVIEW-001.md', plan_file: 'd/PLAN-001.md',
+    agent.review('review it', model: 'opus', report_file: 'd/REVIEW-001.md', source_file: 'd/PLAN-001.md',
                               toc_file: 'd/TABLE-OF-CONTENT.md')
 
     expect(calls).to eq([['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write',

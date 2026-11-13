@@ -19,8 +19,8 @@ class FakeAgent
     @calls << [:run, prompt, model]
   end
 
-  def review(prompt, model:, report_file:, plan_file:, toc_file:)
-    @calls << [:review, prompt, model, report_file, plan_file, toc_file]
+  def review(prompt, model:, report_file:, source_file:, toc_file:)
+    @calls << [:review, prompt, model, report_file, source_file, toc_file]
   end
 
   def explore(prompt, model:, findings_file:, toc_file:)
