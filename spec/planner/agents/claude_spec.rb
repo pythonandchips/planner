@@ -51,6 +51,50 @@ RSpec.describe Planner::Agents::Claude do
     expect(agent.default_explore_model).to eq('opus')
   end
 
+  describe 'deep exploring' do
+    let(:argv) do
+      agent.explore_deep('dig in', model: 'opus', findings_file: 'd/FINDINGS-001.md', toc_file: 'd/TABLE-OF-CONTENT.md')
+      calls.first
+    end
+
+    it 'runs claude with web search, a shell and subagents, and only the findings and toc editable' do
+      expect(argv[0..4]).to eq(
+        ['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write,Edit,WebFetch,WebSearch,Bash,Agent,Skill',
+         '--allowedTools=Edit(d/FINDINGS-001.md),Edit(d/TABLE-OF-CONTENT.md),WebFetch,WebSearch']
+      )
+    end
+
+    it 'removes every MCP tool' do
+      expect(argv[5]).to eq('--disallowedTools=mcp__*')
+    end
+
+    it 'turns off claude.ai connectors, bases worktrees on HEAD and sandboxes the shell with no network' do
+      expect(JSON.parse(argv[6].delete_prefix('--settings='))).to eq(
+        'disableClaudeAiConnectors' => true, 'worktree' => { 'baseRef' => 'head' },
+        'sandbox' => { 'enabled' => true, 'autoAllowBashIfSandboxed' => true, 'allowUnsandboxedCommands' => true,
+                       'network' => { 'allowedDomains' => [] } }
+      )
+    end
+
+    it 'defines the spike subagent in its own worktree' do # rubocop:disable RSpec/ExampleLength
+      expect(JSON.parse(argv[7].delete_prefix('--agents='))).to eq(
+        'spike' => { 'description' => 'Answers one question about the brief in its own worktree, then reports.',
+                     'prompt' => described_class::SPIKE_PROMPT,
+                     'tools' => %w[Read Grep Glob Edit Write Bash WebFetch WebSearch],
+                     'model' => 'inherit', 'maxTurns' => 200, 'isolation' => 'worktree' }
+      )
+    end
+
+    it 'tells the spike to answer its question without committing' do
+      expect(described_class::SPIKE_PROMPT).to include('Never commit it.', 'git rev-parse --show-toplevel',
+                                                       'Never remove a worktree or a branch, and never push.')
+    end
+
+    it 'passes the prompt last' do
+      expect(argv[8..]).to eq(['dig in'])
+    end
+  end
+
   it 'summarises with the given model, shell and web tools, and only the summary paths and toc writable' do
     agent.summarise('sum it', model: 'opus', summary_base: 'd/SUMMARY-001', toc_file: 'd/TABLE-OF-CONTENT.md')
 

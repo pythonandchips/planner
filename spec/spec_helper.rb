@@ -27,6 +27,10 @@ class FakeAgent
     @calls << [:explore, prompt, model, findings_file, toc_file]
   end
 
+  def explore_deep(prompt, model:, findings_file:, toc_file:)
+    @calls << [:explore_deep, prompt, model, findings_file, toc_file]
+  end
+
   def summarise(prompt, model:, summary_base:, toc_file:)
     @calls << [:summarise, prompt, model, summary_base, toc_file]
   end

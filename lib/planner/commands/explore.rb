@@ -2,9 +2,11 @@
 
 module Planner
   module Commands
-    # Renders the explore prompt for an iteration file and hands it to the agent.
+    # Renders the explore prompt, or the deep explore prompt with --deep, for an iteration file and hands it to the
+    # agent.
     class Explore
       TEMPLATE = File.expand_path('../prompts/explore.md.erb', __dir__)
+      DEEP_TEMPLATE = File.expand_path('../prompts/explore_deep.md.erb', __dir__)
       ITERATION_NAME = /\AITERATION-(\d+)\.md\z/
       PARTIALS = %w[findings_structure check_in stats summary_for_user].freeze
 
@@ -13,7 +15,7 @@ module Planner
       end
 
       def call(args)
-        model = parse(args)
+        model, deep = parse(args)
         raise UsageError if model.empty? || args.size != 1
 
         file = args.first
@@ -21,11 +23,17 @@ module Planner
         raise Error, "#{file} is not an ITERATION-<N>.md file" unless number
         raise Error, "#{file} does not exist" unless File.file?(file)
 
-        findings_file = findings_file(file, number)
-        @context.agent.explore(prompt(file, findings_file, model), model:, findings_file:, toc_file: toc_file(file))
+        hand_off(file, findings_file(file, number), model, deep)
       end
 
       private
+
+      def hand_off(file, findings_file, model, deep)
+        text = prompt(file, findings_file, model, deep)
+        return @context.agent.explore(text, model:, findings_file:, toc_file: toc_file(file)) unless deep
+
+        @context.agent.explore_deep(text, model:, findings_file:, toc_file: toc_file(file))
+      end
 
       def toc_file(file) = TableOfContent.path(File.dirname(file))
 
@@ -41,10 +49,10 @@ module Planner
         path
       end
 
-      def prompt(file, findings_file, model)
+      def prompt(file, findings_file, model, deep)
         folder = File.dirname(file)
         locals = { findings_file:, model:, title: File.basename(findings_file, '.md') }
-        ERB.new(File.read(TEMPLATE)).result_with_hash(
+        ERB.new(File.read(deep ? DEEP_TEMPLATE : TEMPLATE)).result_with_hash(
           iteration_file: file, folder:, toc_file: TableOfContent.path(folder),
           table_of_content: TableOfContent.section(folder, update: true), **locals, **partials(locals)
         )
@@ -58,11 +66,15 @@ module Planner
         end
       end
 
-      # Removes the options from args and returns the chosen model.
+      # Removes the options from args and returns the chosen model and whether to explore deep.
       def parse(args)
         model = @context.agent.default_explore_model
-        OptionParser.new { |opts| opts.on('-m', '--model MODEL') { |value| model = value } }.parse!(args)
-        model
+        deep = false
+        OptionParser.new do |opts|
+          opts.on('-m', '--model MODEL') { |value| model = value }
+          opts.on('-d', '--deep') { deep = true }
+        end.parse!(args)
+        [model, deep]
       rescue OptionParser::ParseError
         raise UsageError
       end
