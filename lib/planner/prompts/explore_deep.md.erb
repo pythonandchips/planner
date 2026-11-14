@@ -52,32 +52,46 @@ you to finish.
    everything unclear in the brief, all together. Do
    not assume what the brief wants answered, guess at
    scope, or fill a gap silently. Keep asking until
-   nothing is ambiguous. Then restate the clarified
-   brief in a few lines and end your reply with
-   exactly:
+   nothing is ambiguous. Then find the first free
+   spike number: run
+   `git branch --list '<%= branch_prefix %>-*'`, then,
+   as its own call,
+   `git ls-remote --heads origin '<%= branch_prefix %>-*'`.
+   The first free number is the lowest three-digit
+   `<NNN>` that neither lists. If `git ls-remote`
+   fails, use the local branches only and say so in
+   the findings. Then restate the clarified brief in
+   a few lines and end your reply with exactly:
    `Reply "Make it so" to start the unattended work.`
    Only the reply `Make it so` starts step 3. Treat
    any other reply as more clarification.
 3. **Start the clock.** Run
    `date -u +%Y-%m-%dT%H:%M:%SZ` and keep the output
    as the start of this unattended phase.
-4. **Work unattended.** Hand research to `spike`
+4. **Work unattended.** Hand every task to `spike`
    subagents: call the Agent tool with subagent type
    `spike`, and pass `isolation: "worktree"` on
    every call. Never use the built-in `Explore`
-   subagent. A spike does not see this
-   conversation, so give each one the clarified
-   brief, the decisions so far and the question it
-   should answer. Run independent questions in
-   parallel. A spike may write throwaway code to try
-   things out but never commits it. When it reports
-   a worktree path, cite it as evidence. Use
-   WebSearch and WebFetch for what the repository
-   cannot answer, such as how a framework or library
-   behaves. Back every finding with evidence: file
-   paths and line numbers, the data you read, or the
-   URL you fetched. Note every question only the
-   user can answer, and carry on.
+   subagent. A spike either answers a question or,
+   when the brief needs working code, such as a
+   spike or several competing implementations,
+   builds one approach. Give each spike that builds
+   an approach its own branch,
+   `<%= branch_prefix %>-<NNN>`, numbered up from the
+   first free number, and never reuse a number. A
+   spike that answers a question gets no branch. A
+   spike does not see this conversation, so give
+   each one the clarified brief, the decisions so
+   far, and the question it should answer or the
+   approach to build and its branch name. Run
+   independent spikes in parallel. When a spike
+   reports a worktree path, branch or commit, cite
+   it as evidence. Use WebSearch and WebFetch for
+   what the repository cannot answer, such as how a
+   framework or library behaves. Back every finding
+   with evidence: file paths and line numbers, the
+   data you read, or the URL you fetched. Note every
+   question only the user can answer, and carry on.
 5. **Keep to the time limit.** Before you start
    each new subagent or round of research, run
    `date -u +%Y-%m-%dT%H:%M:%SZ`. Once 90 minutes

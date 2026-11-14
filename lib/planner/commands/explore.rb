@@ -32,10 +32,14 @@ module Planner
         text = prompt(file, findings_file, model, deep)
         return @context.agent.explore(text, model:, findings_file:, toc_file: toc_file(file)) unless deep
 
-        @context.agent.explore_deep(text, model:, findings_file:, toc_file: toc_file(file))
+        @context.agent.explore_deep(text, model:, findings_file:, toc_file: toc_file(file),
+                                          branch_prefix: branch_prefix(file))
       end
 
       def toc_file(file) = TableOfContent.path(File.dirname(file))
+
+      # The plan folder name without the timestamp planner new gives it, or the whole name when it has none.
+      def branch_prefix(file) = File.basename(File.dirname(file)).sub(/\A\d{12}-/, '')
 
       # FINDINGS-<NNN>.md, or the first free FINDINGS-<NNN>-a.md, -b ... -z, -aa ... after it.
       def findings_file(file, number)
@@ -53,7 +57,7 @@ module Planner
         folder = File.dirname(file)
         locals = { findings_file:, model:, title: File.basename(findings_file, '.md') }
         ERB.new(File.read(deep ? DEEP_TEMPLATE : TEMPLATE)).result_with_hash(
-          iteration_file: file, folder:, toc_file: TableOfContent.path(folder),
+          iteration_file: file, folder:, branch_prefix: branch_prefix(file), toc_file: TableOfContent.path(folder),
           table_of_content: TableOfContent.section(folder, update: true), **locals, **partials(locals)
         )
       end

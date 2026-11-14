@@ -53,7 +53,8 @@ RSpec.describe Planner::Agents::Claude do
 
   describe 'deep exploring' do
     let(:argv) do
-      agent.explore_deep('dig in', model: 'opus', findings_file: 'd/FINDINGS-001.md', toc_file: 'd/TABLE-OF-CONTENT.md')
+      agent.explore_deep('dig in', model: 'opus', findings_file: 'd/FINDINGS-001.md',
+                                   toc_file: 'd/TABLE-OF-CONTENT.md', branch_prefix: 'x')
       calls.first
     end
 
@@ -68,9 +69,11 @@ RSpec.describe Planner::Agents::Claude do
       expect(argv[5]).to eq('--disallowedTools=mcp__*')
     end
 
-    it 'turns off claude.ai connectors, bases worktrees on HEAD and sandboxes the shell with no network' do
+    it 'turns off claude.ai connectors, bases worktrees on HEAD, asks before installs and sandboxes the shell' do # rubocop:disable RSpec/ExampleLength
       expect(JSON.parse(argv[6].delete_prefix('--settings='))).to eq(
         'disableClaudeAiConnectors' => true, 'worktree' => { 'baseRef' => 'head' },
+        'permissions' => { 'ask' => ['Bash(bundle install *)', 'Bash(bundle add *)', 'Bash(gem install *)',
+                                     'Bash(npm install *)', 'Bash(yarn add *)', 'Bash(pip install *)'] },
         'sandbox' => { 'enabled' => true, 'autoAllowBashIfSandboxed' => true, 'allowUnsandboxedCommands' => true,
                        'network' => { 'allowedDomains' => [] } }
       )
@@ -78,15 +81,17 @@ RSpec.describe Planner::Agents::Claude do
 
     it 'defines the spike subagent in its own worktree' do # rubocop:disable RSpec/ExampleLength
       expect(JSON.parse(argv[7].delete_prefix('--agents='))).to eq(
-        'spike' => { 'description' => 'Answers one question about the brief in its own worktree, then reports.',
+        'spike' => { 'description' =>
+                       'Answers one question or builds one approach to the brief in its own worktree, then reports.',
                      'prompt' => described_class::SPIKE_PROMPT,
                      'tools' => %w[Read Grep Glob Edit Write Bash WebFetch WebSearch],
                      'model' => 'inherit', 'maxTurns' => 200, 'isolation' => 'worktree' }
       )
     end
 
-    it 'tells the spike to answer its question without committing' do
-      expect(described_class::SPIKE_PROMPT).to include('Never commit it.', 'git rev-parse --show-toplevel',
+    it 'tells the spike to commit only an approach, on its own branch' do
+      expect(described_class::SPIKE_PROMPT).to include('Never commit it, and do not switch branch.',
+                                                       'git switch -c <branch>', "git log -1 --format='%h %s'",
                                                        'Never remove a worktree or a branch, and never push.')
     end
 
