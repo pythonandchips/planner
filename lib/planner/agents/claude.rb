@@ -71,10 +71,10 @@ module Planner
       end
 
       def explore_deep(prompt, model:, findings_file:, toc_file:, branch_prefix:)
-        _ = branch_prefix
+        push = "git push -u origin #{branch_prefix}-*"
         @executor.call('claude', '--model', model, "--tools=#{EXPLORE_DEEP_TOOLS}",
-                       "--allowedTools=Edit(#{findings_file}),Edit(#{toc_file}),WebFetch,WebSearch",
-                       '--disallowedTools=mcp__*', "--settings=#{JSON.generate(deep_settings)}",
+                       "--allowedTools=Edit(#{findings_file}),Edit(#{toc_file}),WebFetch,WebSearch,Bash(#{push})",
+                       '--disallowedTools=mcp__*', "--settings=#{JSON.generate(deep_settings(push))}",
                        "--agents=#{JSON.generate(spike: SPIKE_AGENT)}", prompt)
       end
 
@@ -114,13 +114,13 @@ module Planner
 
       private
 
-      # Settings for a deep explore: no claude.ai connectors, worktrees from local HEAD, installs that always
-      # ask, and Bash sandboxed with no network.
-      def deep_settings
-        { disableClaudeAiConnectors: true, worktree: { baseRef: 'head' },
+      # Settings for a deep explore: git never prompts for credentials, no claude.ai connectors, worktrees from
+      # local HEAD, installs that always ask, and Bash sandboxed with no network apart from the push.
+      def deep_settings(push)
+        { env: { GIT_TERMINAL_PROMPT: '0' }, disableClaudeAiConnectors: true, worktree: { baseRef: 'head' },
           permissions: { ask: INSTALL_COMMANDS.map { |command| "Bash(#{command} *)" } },
           sandbox: { enabled: true, autoAllowBashIfSandboxed: true, allowUnsandboxedCommands: true,
-                     network: { allowedDomains: [] } } }
+                     excludedCommands: [push], network: { allowedDomains: [] } } }
       end
     end
   end

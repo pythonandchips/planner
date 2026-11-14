@@ -58,10 +58,11 @@ RSpec.describe Planner::Agents::Claude do
       calls.first
     end
 
-    it 'runs claude with web search, a shell and subagents, and only the findings and toc editable' do
+    it 'runs claude with web search, a shell and subagents, the findings and toc editable and the push allowed' do
       expect(argv[0..4]).to eq(
         ['claude', '--model', 'opus', '--tools=Read,Grep,Glob,Write,Edit,WebFetch,WebSearch,Bash,Agent,Skill',
-         '--allowedTools=Edit(d/FINDINGS-001.md),Edit(d/TABLE-OF-CONTENT.md),WebFetch,WebSearch']
+         '--allowedTools=Edit(d/FINDINGS-001.md),Edit(d/TABLE-OF-CONTENT.md),WebFetch,WebSearch,' \
+         'Bash(git push -u origin x-*)']
       )
     end
 
@@ -69,13 +70,14 @@ RSpec.describe Planner::Agents::Claude do
       expect(argv[5]).to eq('--disallowedTools=mcp__*')
     end
 
-    it 'turns off claude.ai connectors, bases worktrees on HEAD, asks before installs and sandboxes the shell' do # rubocop:disable RSpec/ExampleLength
+    it 'stops git prompting, turns off connectors, asks before installs and sandboxes all but the push' do # rubocop:disable RSpec/ExampleLength
       expect(JSON.parse(argv[6].delete_prefix('--settings='))).to eq(
+        'env' => { 'GIT_TERMINAL_PROMPT' => '0' },
         'disableClaudeAiConnectors' => true, 'worktree' => { 'baseRef' => 'head' },
         'permissions' => { 'ask' => ['Bash(bundle install *)', 'Bash(bundle add *)', 'Bash(gem install *)',
                                      'Bash(npm install *)', 'Bash(yarn add *)', 'Bash(pip install *)'] },
         'sandbox' => { 'enabled' => true, 'autoAllowBashIfSandboxed' => true, 'allowUnsandboxedCommands' => true,
-                       'network' => { 'allowedDomains' => [] } }
+                       'excludedCommands' => ['git push -u origin x-*'], 'network' => { 'allowedDomains' => [] } }
       )
     end
 

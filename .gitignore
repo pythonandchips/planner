@@ -1,3 +1,4 @@
 /pkg/
 /.rspec_status
 /coverage/
+.claude/worktrees/

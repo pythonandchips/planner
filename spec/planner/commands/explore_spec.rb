@@ -248,6 +248,12 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
                                 '| Model | default-explore-model |', '## Summary for the user',
                                 'update `docs/plans/x/TABLE-OF-CONTENT.md` as described under')
     end
+
+    it 'pushes the spike branches and lists them with cleanup commands' do
+      expect(prompt).to include('`git push -u origin <branch>` with nothing before',
+                                '`## Branches` section after `## Findings`, listing', 'git branch -D x-<NNN>',
+                                'never run them')
+    end
   end
 
   describe 'errors' do
