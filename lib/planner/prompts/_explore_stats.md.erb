@@ -1,0 +1,33 @@
+As you go, keep a list of every command you could not
+run unassisted: commands that needed the user to approve
+a permission prompt, commands denied by permissions or
+blocked by the sandbox, commands you asked the user to
+run, and commands that failed and had to be run again in
+another form. Keep it across every round.
+
+Add the stats only once, when the user tells you to
+finish.
+
+Add the following to the very end of
+`<%= findings_file %>`, below everything already
+there, and change nothing else in that file:
+
+```
+---
+
+## Stats
+
+| Field | Value |
+| --- | --- |
+| Model | <%= model %> |
+| Tokens | <best estimate, e.g. ~85k> (estimate) |
+
+### Commands that needed help
+
+| Command | What happened | Suggested fix |
+| --- | --- | --- |
+| `<command>` | <what happened> | <the permission or instruction that would let it run unassisted> |
+```
+
+- Leave out the Commands that needed help heading and
+  table when there were none.

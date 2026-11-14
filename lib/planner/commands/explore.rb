@@ -6,6 +6,7 @@ module Planner
     class Explore
       TEMPLATE = File.expand_path('../prompts/explore.md.erb', __dir__)
       ITERATION_NAME = /\AITERATION-(\d+)\.md\z/
+      PARTIALS = %w[findings_structure check_in stats summary_for_user].freeze
 
       def initialize(context)
         @context = context
@@ -42,11 +43,19 @@ module Planner
 
       def prompt(file, findings_file, model)
         folder = File.dirname(file)
+        locals = { findings_file:, model:, title: File.basename(findings_file, '.md') }
         ERB.new(File.read(TEMPLATE)).result_with_hash(
-          iteration_file: file, folder:, findings_file:, model:,
-          title: File.basename(findings_file, '.md'), toc_file: TableOfContent.path(folder),
-          table_of_content: TableOfContent.section(folder, update: true)
+          iteration_file: file, folder:, toc_file: TableOfContent.path(folder),
+          table_of_content: TableOfContent.section(folder, update: true), **locals, **partials(locals)
         )
+      end
+
+      # Each _explore_<name>.md.erb partial rendered with locals, without its trailing newline, keyed by name.
+      def partials(locals)
+        PARTIALS.to_h do |name|
+          path = File.expand_path("../prompts/_explore_#{name}.md.erb", __dir__)
+          [name.to_sym, ERB.new(File.read(path)).result_with_hash(locals).chomp]
+        end
       end
 
       # Removes the options from args and returns the chosen model.

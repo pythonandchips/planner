@@ -72,107 +72,15 @@ in with the user, until the user tells you to finish.
 
 ## Findings structure
 
-```markdown
-# <%= title %> — <short title>
-
-## Summary
-
-<a short paragraph answering the brief>
-
-## Recommendations
-
-- <further exploration, or an action a later iteration could plan> (finding <N>)
-
-## Questions
-
-<the questions the brief asks, then each aspect the user asked you to focus on, numbered>
-
-## Decisions (resolved, do not revisit)
-
-| Decision | Choice |
-| --- | --- |
-| <each question you resolved with the user> | <the answer> |
-
-## Findings
-
-### 1. <short title>
-
-<what you found, with evidence>
-```
-
-Number the findings `### 1.`, `### 2.` and so on,
-so recommendations can cite them.
-
-Recommendations are advisory: further exploration, or
-actions a later iteration could plan. Nothing in them
-has been decided. End each one with the finding or
-findings it follows from, such as `(finding 2)` or
-`(findings 2, 3)`. Write `None.` when you have none.
-
-Use mermaid diagrams where a picture makes a finding
-clearer, such as a flow, a dependency graph or a data
-model.
+<%= findings_structure %>
 
 ## Check-in
 
-After each round's write, reply here in exactly this
-format, then wait for the user:
-
-```
-Findings so far written to `<%= findings_file %>`.
-
-**Summary:** <the Summary paragraph from the file>
-
-**Recommendations:**
-- <the recommendation in one line> (finding <N>)
-
-**Next steps:**
-1. <a direction to explore next, in one line>
-
-Pick a next step by number, name an aspect to focus
-on, say continue to keep on the current path, or say
-finish to write the final findings.
-```
-
-List every recommendation as in the file, and two to
-four next steps. Write `None.` under Recommendations
-when there are none.
+<%= check_in %>
 
 ## Stats
 
-As you go, keep a list of every command you could not
-run unassisted: commands that needed the user to approve
-a permission prompt, commands denied by permissions or
-blocked by the sandbox, commands you asked the user to
-run, and commands that failed and had to be run again in
-another form. Keep it across every round.
-
-Add the stats only once, when the user tells you to
-finish.
-
-Add the following to the very end of
-`<%= findings_file %>`, below everything already
-there, and change nothing else in that file:
-
-```
----
-
-## Stats
-
-| Field | Value |
-| --- | --- |
-| Model | <%= model %> |
-| Tokens | <best estimate, e.g. ~85k> (estimate) |
-
-### Commands that needed help
-
-| Command | What happened | Suggested fix |
-| --- | --- | --- |
-| `<command>` | <what happened> | <the permission or instruction that would let it run unassisted> |
-```
-
-- Leave out the Commands that needed help heading and
-  table when there were none.
+<%= stats %>
 
 ## Table of contents
 
@@ -180,19 +88,4 @@ there, and change nothing else in that file:
 
 ## Summary for the user
 
-When the user tells you to finish and the final file
-is written, reply here with a plain-English summary in
-exactly this format:
-
-```
-Findings written to `<%= findings_file %>`.
-
-**Summary:** <the Summary paragraph from the file>
-
-**Recommendations:**
-- <the recommendation in one line> (finding <N>)
-```
-
-List every recommendation, one line each, worded
-as in the file. Write `None.` under
-Recommendations when there are none.
+<%= summary_for_user %>
