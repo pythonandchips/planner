@@ -165,6 +165,7 @@ struct StatusBadge: View {
         switch status {
         case .starting, .working: return .blue
         case .awaitingPermission: return .orange
+        case .awaitingAnswer: return .purple
         case .awaitingInput: return .green
         case .failed: return .red
         case .exited: return .secondary

@@ -43,6 +43,12 @@ public enum ACPError: Error, CustomStringConvertible, Sendable {
 public enum ACPEvent: Sendable {
     case sessionUpdate(sessionId: String, update: SessionUpdate)
     case permissionRequest(PermissionRequest)
+    /// `elicitation/create` (form mode). The Claude adapter sends one for
+    /// the built-in AskUserQuestion tool.
+    case elicitation(ElicitationRequest)
+    /// `$/cancel_request`: the agent withdrew an open request (permission or
+    /// elicitation) with this JSON-RPC id.
+    case requestCancelled(JSONValue)
     case stderr(String)
     case exited(Int32)
 }
@@ -62,9 +68,15 @@ public actor ACPClient {
     private var stderrTail = ""
     private var exitStatus: Int32?
 
-    public init(launch: AgentLaunch, cwd: URL) {
+    /// Called with ("->", line) for every line sent and ("<-", line) for
+    /// every line received. Used by the probe to record traffic.
+    public typealias Trace = @Sendable (_ direction: String, _ line: String) -> Void
+    private let trace: Trace?
+
+    public init(launch: AgentLaunch, cwd: URL, trace: Trace? = nil) {
         self.launch = launch
         self.cwd = cwd
+        self.trace = trace
         (events, eventSink) = AsyncStream.makeStream(of: ACPEvent.self)
     }
 
@@ -142,8 +154,22 @@ public actor ACPClient {
         try await request("initialize", InitializeParams()).decode(as: InitializeResult.self)
     }
 
-    public func newSession(cwd: URL) async throws -> String {
-        try await request("session/new", NewSessionParams(cwd: cwd.path)).decode(as: NewSessionResult.self).sessionId
+    /// `mcpServers` are ACP McpServer objects (stdio or http). `meta` goes in
+    /// `_meta`; the Claude adapter reads `_meta.claudeCode.options`
+    /// (allowedTools, settings, ...).
+    public func newSession(cwd: URL, mcpServers: [JSONValue] = [], meta: JSONValue? = nil) async throws -> String {
+        try await request("session/new", NewSessionParams(cwd: cwd.path, mcpServers: mcpServers, _meta: meta))
+            .decode(as: NewSessionResult.self).sessionId
+    }
+
+    /// Any other request, untyped (session/set_config_option, ...).
+    public func call(_ method: String, params: JSONValue) async throws -> JSONValue {
+        try await request(method, params)
+    }
+
+    /// Answers an `elicitation/create`.
+    public func respond(to request: ElicitationRequest, with response: ElicitationResponse) throws {
+        try send(["jsonrpc": .string("2.0"), "id": request.rpcId, "result": response.json])
     }
 
     /// Sends one prompt turn. Returns the stop reason once the agent ends the
@@ -192,8 +218,14 @@ public actor ACPClient {
     private func send(_ message: [String: JSONValue]) throws {
         guard let stdin else { throw ACPError.notStarted }
         var data = try JSONEncoder().encode(JSONValue.object(message))
+        trace?("->", String(decoding: data, as: UTF8.self))
         data.append(0x0A)
-        try stdin.write(contentsOf: data)
+        do {
+            try stdin.write(contentsOf: data)
+        } catch {
+            // EPIPE: the agent exited before its termination handler ran.
+            throw ACPError.processExited(exitStatus ?? -1, stderr: stderrTail)
+        }
     }
 
     private struct Incoming: Decodable {
@@ -210,6 +242,7 @@ public actor ACPClient {
     }
 
     private func handle(line: String) {
+        trace?("<-", line)
         guard let data = line.data(using: .utf8),
               let msg = try? JSONDecoder().decode(Incoming.self, from: data) else {
             eventSink.yield(.stderr("unparseable line from agent: \(line.prefix(200))"))
@@ -242,6 +275,11 @@ public actor ACPClient {
                 options: (try? params["options"]?.decode(as: [PermissionOption].self)) ?? []
             )
             eventSink.yield(.permissionRequest(request))
+        case "elicitation/create":
+            guard let id else { return }
+            eventSink.yield(.elicitation(ElicitationRequest(rpcId: id, params: params)))
+        case "$/cancel_request":
+            if let rid = params["requestId"] ?? params["id"] { eventSink.yield(.requestCancelled(rid)) }
         default:
             // fs/* and terminal/* are not advertised in our capabilities.
             if let id {

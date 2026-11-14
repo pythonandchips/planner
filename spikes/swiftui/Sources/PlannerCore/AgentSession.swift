@@ -5,6 +5,9 @@ public enum SessionStatus: Equatable, Sendable {
     case starting
     case working
     case awaitingPermission
+    /// A gate tool call or an elicitation is open: the agent is blocked
+    /// mid-turn on a form.
+    case awaitingAnswer
     case awaitingInput
     case failed(String)
     case exited
@@ -14,6 +17,7 @@ public enum SessionStatus: Equatable, Sendable {
         case .starting: return "Starting"
         case .working: return "Working"
         case .awaitingPermission: return "Needs permission"
+        case .awaitingAnswer: return "Awaiting answer"
         case .awaitingInput: return "Awaiting input"
         case .failed: return "Failed"
         case .exited: return "Exited"
@@ -21,7 +25,9 @@ public enum SessionStatus: Equatable, Sendable {
     }
 
     /// True when the user has to do something before the agent can continue.
-    public var needsUser: Bool { self == .awaitingPermission || self == .awaitingInput }
+    public var needsUser: Bool {
+        self == .awaitingPermission || self == .awaitingAnswer || self == .awaitingInput
+    }
 }
 
 public struct TranscriptItem: Identifiable, Equatable, Sendable {
@@ -31,17 +37,28 @@ public struct TranscriptItem: Identifiable, Equatable, Sendable {
         case thought(String)
         case tool(ToolCallInfo)
         case permission(PermissionRequest, chosen: PermissionOption?)
+        /// A planner gate tool call (MCP), open until `answer` is set.
+        case gate(GatePrompt, answer: GateAnswer?)
+        /// An `elicitation/create` form (AskUserQuestion), open until answered.
+        case elicitation(ElicitationRequest, response: ElicitationResponse?)
         case plan([PlanEntry])
         case notice(String)
     }
 
     public let id: Int
     public var kind: Kind
+
+    /// Tool rows the UI skips because a form shows the same thing.
+    public var isShadowedTool: Bool {
+        guard case .tool(let info) = kind else { return false }
+        return info.isPlannerGate || info.toolName == "AskUserQuestion"
+    }
 }
 
-/// One agent conversation: owns an ACPClient (one agent process), turns its
-/// events into a transcript, and tracks whether the agent is waiting on the
-/// user. Lives on the main actor so SwiftUI can observe it directly.
+/// One agent conversation: owns an ACPClient (one agent process) and a gate
+/// MCP server, turns their events into a transcript, and tracks whether the
+/// agent is waiting on the user. Lives on the main actor so SwiftUI can
+/// observe it directly.
 @MainActor
 @Observable
 public final class AgentSession: Identifiable {
@@ -49,6 +66,9 @@ public final class AgentSession: Identifiable {
     public let title: String
     public let cwd: URL
     public let launch: AgentLaunch
+    /// Extra `_meta` for session/new, merged over the gate defaults.
+    public let sessionMeta: JSONValue?
+    public let gatesEnabled: Bool
 
     public private(set) var status: SessionStatus = .starting
     public private(set) var transcript: [TranscriptItem] = []
@@ -57,26 +77,53 @@ public final class AgentSession: Identifiable {
     public private(set) var lastStopReason: String?
     /// Set while a session/prompt is in flight.
     public private(set) var turnInFlight = false
+    /// Which transport the gate MCP server ended up on.
+    public private(set) var gateTransportName: String?
 
     @ObservationIgnored private var client: ACPClient?
     @ObservationIgnored private var nextItemId = 0
     @ObservationIgnored private var toolIndex: [String: Int] = [:]
     @ObservationIgnored private var openPermissions: [JSONValue: Int] = [:]
+    @ObservationIgnored private var openGates: [Int: (index: Int, continuation: CheckedContinuation<GateAnswer, Never>)] = [:]
+    @ObservationIgnored private var openElicitations: [JSONValue: Int] = [:]
+    @ObservationIgnored private var nextGateId = 1
+    @ObservationIgnored private var gateTransport: MCPGateTransport?
 
-    public init(title: String, cwd: URL, launch: AgentLaunch) {
+    public init(title: String, cwd: URL, launch: AgentLaunch, gatesEnabled: Bool = true, sessionMeta: JSONValue? = nil) {
         self.title = title
         self.cwd = cwd
         self.launch = launch
+        self.gatesEnabled = gatesEnabled
+        self.sessionMeta = sessionMeta
+    }
+
+    /// `_meta` for session/new: lets the gate tools run without a
+    /// permission prompt, plus anything the caller passed.
+    nonisolated public static func meta(gates: Bool, extra: JSONValue?) -> JSONValue? {
+        var options = extra?["claudeCode"]?["options"]?.objectValue ?? [:]
+        if gates {
+            var allowed = options["allowedTools"]?.arrayValue ?? []
+            allowed.append(.string(GateTools.allowedToolsPattern))
+            options["allowedTools"] = .array(allowed)
+        }
+        if options.isEmpty { return extra }
+        var meta = extra?.objectValue ?? [:]
+        var claude = meta["claudeCode"]?.objectValue ?? [:]
+        claude["options"] = .object(options)
+        meta["claudeCode"] = .object(claude)
+        return .object(meta)
     }
 
     /// The agent's last message, if the turn ended and the message reads as
-    /// a question. ACP has no "question" message; Claude asks in plain text
-    /// and ends its turn, so this is a heuristic for the UI to highlight.
+    /// a question. Fallback for agents that ask in plain text instead of
+    /// calling a gate tool.
     public var pendingQuestion: String? {
         guard status == .awaitingInput else { return nil }
         guard let last = transcript.last(where: {
             if case .agent = $0.kind { return true }
             if case .user = $0.kind { return true }
+            if case .gate = $0.kind { return true }
+            if case .elicitation = $0.kind { return true }
             return false
         }), case .agent(let text) = last.kind else { return nil }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -86,6 +133,20 @@ public final class AgentSession: Identifiable {
     public var openPermissionRequests: [PermissionRequest] {
         openPermissions.values.sorted().compactMap { index in
             if case .permission(let request, nil) = transcript[index].kind { return request }
+            return nil
+        }
+    }
+
+    public var openGatePrompts: [GatePrompt] {
+        openGates.values.map(\.index).sorted().compactMap { index in
+            if case .gate(let prompt, nil) = transcript[index].kind { return prompt }
+            return nil
+        }
+    }
+
+    public var openElicitationRequests: [ElicitationRequest] {
+        openElicitations.values.sorted().compactMap { index in
+            if case .elicitation(let request, nil) = transcript[index].kind { return request }
             return nil
         }
     }
@@ -100,7 +161,19 @@ public final class AgentSession: Identifiable {
                 try await client.start()
                 consume(client.events)
                 try await client.initialize()
-                acpSessionId = try await client.newSession(cwd: cwd)
+                var servers: [JSONValue] = []
+                if gatesEnabled {
+                    let server = MCPGateServer { [weak self] kind in
+                        await self?.openGate(kind) ?? .cancelled
+                    }
+                    let (transport, note) = MCPGateHost.start(server: server)
+                    gateTransport = transport
+                    gateTransportName = transport.transportName
+                    if let note { stderrLog.append("planner-desk: \(note)") }
+                    if transport.acpServerConfig != .null { servers.append(transport.acpServerConfig) }
+                }
+                acpSessionId = try await client.newSession(
+                    cwd: cwd, mcpServers: servers, meta: Self.meta(gates: gatesEnabled, extra: sessionMeta))
                 await runTurn(prompt)
             } catch {
                 fail(error)
@@ -117,34 +190,78 @@ public final class AgentSession: Identifiable {
     public func choose(_ option: PermissionOption?, for request: PermissionRequest) {
         guard let index = openPermissions.removeValue(forKey: request.rpcId) else { return }
         transcript[index].kind = .permission(request, chosen: option)
-        if openPermissions.isEmpty, status == .awaitingPermission { status = .working }
+        refreshStatus()
         Task { try? await client?.respond(to: request, optionId: option?.optionId) }
+    }
+
+    /// Answers an open gate; the blocked MCP tools/call returns with it.
+    public func answer(_ prompt: GatePrompt, with answer: GateAnswer) {
+        guard let open = openGates.removeValue(forKey: prompt.id) else { return }
+        transcript[open.index].kind = .gate(prompt, answer: answer)
+        refreshStatus()
+        open.continuation.resume(returning: answer)
+    }
+
+    /// Answers an open `elicitation/create`.
+    public func respond(to request: ElicitationRequest, with response: ElicitationResponse) {
+        guard let index = openElicitations.removeValue(forKey: request.rpcId) else { return }
+        transcript[index].kind = .elicitation(request, response: response)
+        refreshStatus()
+        Task { try? await client?.respond(to: request, with: response) }
     }
 
     public func cancelTurn() {
         guard let client, let sessionId = acpSessionId else { return }
         // The spec says pending permission requests must be answered "cancelled".
         for request in openPermissionRequests { choose(nil, for: request) }
+        for request in openElicitationRequests { respond(to: request, with: .cancel) }
+        for prompt in openGatePrompts { answer(prompt, with: .cancelled) }
         Task { try? await client.cancel(sessionId: sessionId) }
     }
 
     public func stop() {
+        for prompt in openGatePrompts { answer(prompt, with: .cancelled) }
+        gateTransport?.stop()
         Task { await client?.stop() }
     }
 
     // MARK: Internals
 
+    /// Called by the gate MCP server (off the main actor) for each
+    /// tools/call; suspends until `answer` is called.
+    func openGate(_ kind: GateKind) async -> GateAnswer {
+        await withCheckedContinuation { continuation in
+            let prompt = GatePrompt(id: nextGateId, kind: kind)
+            nextGateId += 1
+            let index = append(.gate(prompt, answer: nil))
+            openGates[prompt.id] = (index, continuation)
+            refreshStatus()
+        }
+    }
+
+    /// Permission outranks a form; a form outranks "working".
+    private func refreshStatus() {
+        switch status {
+        case .failed, .exited: return
+        default: break
+        }
+        if !openPermissions.isEmpty { status = .awaitingPermission }
+        else if !openGates.isEmpty || !openElicitations.isEmpty { status = .awaitingAnswer }
+        else if turnInFlight { status = .working }
+        else if acpSessionId != nil { status = .awaitingInput }
+    }
+
     private func runTurn(_ text: String) async {
         guard let client, let sessionId = acpSessionId else { return }
         append(.user(text))
         turnInFlight = true
-        status = .working
+        refreshStatus()
         do {
             let stop = try await client.prompt(sessionId: sessionId, text: text)
             lastStopReason = stop
             turnInFlight = false
             if stop != "end_turn" { append(.notice("Turn ended: \(stop)")) }
-            if status != .exited { status = .awaitingInput }
+            refreshStatus()
         } catch {
             turnInFlight = false
             fail(error)
@@ -165,11 +282,27 @@ public final class AgentSession: Identifiable {
             apply(update)
         case .permissionRequest(let request):
             openPermissions[request.rpcId] = append(.permission(request, chosen: nil))
-            status = .awaitingPermission
+            refreshStatus()
+        case .elicitation(let request):
+            openElicitations[request.rpcId] = append(.elicitation(request, response: nil))
+            refreshStatus()
+        case .requestCancelled(let rid):
+            // The agent withdrew the request: close the form without answering.
+            if let index = openElicitations.removeValue(forKey: rid),
+               case .elicitation(let r, _) = transcript[index].kind {
+                transcript[index].kind = .elicitation(r, response: .cancel)
+            }
+            if let index = openPermissions.removeValue(forKey: rid),
+               case .permission(let r, _) = transcript[index].kind {
+                transcript[index].kind = .permission(r, chosen: nil)
+            }
+            refreshStatus()
         case .stderr(let line):
             stderrLog.append(line)
             if stderrLog.count > 500 { stderrLog.removeFirst(stderrLog.count - 500) }
         case .exited(let code):
+            for prompt in openGatePrompts { answer(prompt, with: .cancelled) }
+            gateTransport?.stop()
             if case .failed = status { return }
             status = code == 0 ? .exited : .failed("agent exited with status \(code)")
         }
@@ -194,6 +327,7 @@ public final class AgentSession: Identifiable {
             existing.kind = info.kind ?? existing.kind
             existing.status = info.status ?? existing.status
             existing.detail = info.detail ?? existing.detail
+            existing.toolName = info.toolName ?? existing.toolName
             transcript[index].kind = .tool(existing)
         case .plan(let entries):
             if let index = transcript.lastIndex(where: { if case .plan = $0.kind { return true }; return false }) {

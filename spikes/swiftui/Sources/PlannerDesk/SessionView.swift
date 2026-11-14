@@ -12,6 +12,8 @@ struct SessionView: View {
             transcript
             if let request = session.openPermissionRequests.first {
                 PermissionBar(request: request, session: session)
+            } else {
+                OpenFormPanel(session: session)
             }
             Divider()
             replyBox
@@ -48,7 +50,7 @@ struct SessionView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12) {
-                    ForEach(session.transcript) { item in
+                    ForEach(session.transcript.filter { !$0.isShadowedTool }) { item in
                         TranscriptRow(item: item, session: session).id(item.id)
                     }
                     if session.status == .working || session.status == .starting {
@@ -111,6 +113,7 @@ struct SessionView: View {
         switch session.status {
         case .awaitingInput: return "Reply to the agent (⌘↩ to send)"
         case .awaitingPermission: return "Answer the permission request above first"
+        case .awaitingAnswer: return "Answer the form above; the agent is waiting on it"
         case .failed, .exited: return "Session ended"
         default: return "The agent is working…"
         }
@@ -205,6 +208,10 @@ struct TranscriptRow: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+        case .gate(let prompt, let answer):
+            FormRecordRow(title: prompt.kind.label, detail: prompt.kind.recordDetail, answer: answer?.summary)
+        case .elicitation(let request, let response):
+            FormRecordRow(title: "Question", detail: request.message, answer: response?.summary)
         case .plan(let entries):
             GroupBox("Plan") {
                 VStack(alignment: .leading, spacing: 4) {

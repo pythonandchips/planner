@@ -50,6 +50,28 @@ public enum JSONValue: Codable, Hashable, Sendable {
         return nil
     }
 
+    public var objectValue: [String: JSONValue]? {
+        if case .object(let o) = self { return o }
+        return nil
+    }
+
+    public var boolValue: Bool? {
+        if case .bool(let b) = self { return b }
+        return nil
+    }
+
+    /// Parses JSON text (one JSON-RPC line, a schema literal, ...).
+    public static func parse(_ text: String) throws -> JSONValue {
+        try JSONDecoder().decode(JSONValue.self, from: Data(text.utf8))
+    }
+
+    /// Compact JSON text with sorted keys, for logs and wire output.
+    public var jsonString: String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+        return (try? encoder.encode(self)).map { String(decoding: $0, as: UTF8.self) } ?? "null"
+    }
+
     /// Re-decodes this value as a Codable type.
     public func decode<T: Decodable>(as type: T.Type) throws -> T {
         try JSONDecoder().decode(T.self, from: JSONEncoder().encode(self))

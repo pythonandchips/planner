@@ -30,6 +30,10 @@ build_core() { # $1 = extra flags (e.g. -O or -enable-testing)
 }
 
 case "$MODE" in
+core)
+    build_core "-Onone -g"
+    echo "built $OUT/libPlannerCore.a"
+    ;;
 test)
     build_core "-Onone -enable-testing -g"
     cat > "$OUT/TestMain.swift" <<'EOF'

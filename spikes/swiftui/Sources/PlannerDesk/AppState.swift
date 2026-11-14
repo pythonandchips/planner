@@ -8,7 +8,7 @@ enum SidebarItem: Hashable {
 }
 
 enum SessionMode: String, CaseIterable, Identifiable {
-    case explore, plan, run, chat
+    case explore, deep, plan, run, chat
     var id: String { rawValue }
 }
 
@@ -114,15 +114,30 @@ final class AppState {
         selection = .file(url)
     }
 
-    /// Stand-ins for planner's ERB prompts in lib/planner/prompts; a real
-    /// port would render those instead.
+    /// spikes/swiftui/prompts: gate-aware variants of planner's explore,
+    /// deep explore and plan prompts. Found from the source path, which is
+    /// fine for a spike run from its checkout.
+    static let promptsDir = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        .appendingPathComponent("prompts")
+
+    /// Renders a prompt variant ({{placeholders}}), or falls back to the
+    /// short stand-ins below.
     static func prompt(for mode: SessionMode, folder: PlanFolder?) -> String {
         guard let folder else { return "" }
         let rel = "docs/plans/\(folder.name)"
         let iteration = folder.files.last { $0.kind == .iteration }?.name ?? "ITERATION-001.md"
         let n = iteration.replacingOccurrences(of: "ITERATION-", with: "").replacingOccurrences(of: ".md", with: "")
+        let file = ["explore": "explore.md", "deep": "explore_deep.md", "plan": "plan.md"][mode.rawValue]
+        if let file, var text = try? String(contentsOf: promptsDir.appendingPathComponent(file), encoding: .utf8) {
+            let values = ["folder": rel, "iteration_file": "\(rel)/\(iteration)",
+                          "findings_file": "\(rel)/FINDINGS-\(n).md", "plan_file": "\(rel)/PLAN-\(n).md",
+                          "toc_file": "\(rel)/TABLE-OF-CONTENT.md"]
+            for (key, value) in values { text = text.replacingOccurrences(of: "{{\(key)}}", with: value) }
+            return text
+        }
         switch mode {
-        case .explore:
+        case .explore, .deep:
             return "Read \(rel)/\(iteration). Explore the codebase to answer its open questions and write what you find to \(rel)/FINDINGS-\(n).md. If anything in the iteration is unclear, stop and ask me."
         case .plan:
             return "Read \(rel)/\(iteration) and \(rel)/FINDINGS-\(n).md, then write an implementation plan to \(rel)/PLAN-\(n).md. Ask me before making decisions the iteration leaves open."

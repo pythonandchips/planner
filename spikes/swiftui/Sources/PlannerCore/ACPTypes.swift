@@ -37,6 +37,15 @@ public struct ToolCallInfo: Hashable, Sendable {
     /// pending, in_progress, completed, failed
     public var status: String?
     public var detail: String?
+    /// The Claude adapter's `_meta.claudeCode.toolName`, e.g.
+    /// `mcp__planner__ask_user` or `AskUserQuestion`.
+    public var toolName: String? = nil
+
+    /// Planner's own gate tools render as forms, not as tool rows.
+    public var isPlannerGate: Bool {
+        (toolName ?? "").hasPrefix("mcp__\(GateTools.serverName)__")
+            || GateTools.names.contains { (title ?? "").contains("mcp__\(GateTools.serverName)__\($0)") }
+    }
 }
 
 public struct PlanEntry: Hashable, Sendable, Codable {
@@ -67,7 +76,8 @@ public enum SessionUpdate: Hashable, Sendable {
                 title: u["title"]?.stringValue,
                 kind: u["kind"]?.stringValue,
                 status: u["status"]?.stringValue,
-                detail: Self.toolDetail(u["content"])
+                detail: Self.toolDetail(u["content"]),
+                toolName: u["_meta"]?["claudeCode"]?["toolName"]?.stringValue
             )
             self = kind == "tool_call" ? .toolCall(info) : .toolCallUpdate(info)
         case "plan":
@@ -102,7 +112,11 @@ public enum SessionUpdate: Hashable, Sendable {
 
 struct InitializeParams: Encodable {
     struct FS: Encodable { let readTextFile = false; let writeTextFile = false }
-    struct Caps: Encodable { let fs = FS(); let terminal = false }
+    struct Empty: Encodable {}
+    /// `form: {}` advertises form elicitation. The Claude adapter only
+    /// enables AskUserQuestion (as `elicitation/create`) when it is present.
+    struct Elicitation: Encodable { let form = Empty() }
+    struct Caps: Encodable { let fs = FS(); let terminal = false; let elicitation = Elicitation() }
     struct Info: Encodable { let name = "planner-desk"; let version = "0.0.1" }
     let protocolVersion = 1
     let clientCapabilities = Caps()
@@ -117,7 +131,8 @@ public struct InitializeResult: Decodable, Sendable {
 
 struct NewSessionParams: Encodable {
     let cwd: String
-    let mcpServers: [JSONValue] = []
+    let mcpServers: [JSONValue]
+    let _meta: JSONValue?
 }
 
 struct NewSessionResult: Decodable { let sessionId: String }
@@ -135,3 +150,94 @@ struct PromptParams: Encodable {
 struct PromptResult: Decodable { let stopReason: String }
 
 struct SessionIdParams: Encodable { let sessionId: String }
+
+// MARK: - Elicitation (elicitation/create, form mode)
+
+/// One field of an elicitation form, from `requestedSchema.properties`.
+public struct ElicitationField: Hashable, Sendable, Identifiable {
+    public struct Option: Hashable, Sendable, Identifiable {
+        public let value: String
+        public let title: String
+        public let description: String?
+        public var id: String { value }
+    }
+
+    public enum Kind: Hashable, Sendable {
+        case single([Option])
+        case multi([Option])
+        case text
+        case bool
+        case number
+    }
+
+    public let key: String
+    public let title: String?
+    public let description: String?
+    public let kind: Kind
+    public let required: Bool
+    public var id: String { key }
+}
+
+/// An `elicitation/create` request in form mode. The agent is blocked until
+/// the client answers accept (with content), decline or cancel.
+public struct ElicitationRequest: Hashable, Sendable, Identifiable {
+    public let rpcId: JSONValue
+    public let sessionId: String
+    public let toolCallId: String?
+    public let mode: String
+    public let message: String
+    public let fields: [ElicitationField]
+    public var id: JSONValue { rpcId }
+
+    public init(rpcId: JSONValue, params p: JSONValue) {
+        self.rpcId = rpcId
+        sessionId = p["sessionId"]?.stringValue ?? ""
+        toolCallId = p["toolCallId"]?.stringValue
+        mode = p["mode"]?.stringValue ?? "form"
+        message = p["message"]?.stringValue ?? ""
+        let schema = p["requestedSchema"]
+        let required = Set(schema?["required"]?.arrayValue?.compactMap(\.stringValue) ?? [])
+        let props = schema?["properties"]?.objectValue ?? [:]
+        // JSON object order is not kept by the decoder; the adapter's keys
+        // (question_0, question_0_custom, question_1, ...) sort naturally.
+        fields = props.keys.sorted { $0.localizedStandardCompare($1) == .orderedAscending }.map { key in
+            let s = props[key]!
+            func options(_ list: JSONValue?) -> [ElicitationField.Option] {
+                (list?.arrayValue ?? []).map {
+                    let value = $0["const"]?.stringValue ?? $0.stringValue ?? ""
+                    return .init(value: value, title: $0["title"]?.stringValue ?? value,
+                                 description: $0["description"]?.stringValue)
+                }
+            }
+            let kind: ElicitationField.Kind
+            switch s["type"]?.stringValue {
+            case "array":
+                let items = s["items"]
+                kind = .multi(options(items?["anyOf"] ?? items?["enum"]))
+            case "boolean": kind = .bool
+            case "number", "integer": kind = .number
+            default:
+                if let one = s["oneOf"] { kind = .single(options(one)) }
+                else if let e = s["enum"] { kind = .single(options(e)) }
+                else { kind = .text }
+            }
+            return ElicitationField(key: key, title: s["title"]?.stringValue,
+                                    description: s["description"]?.stringValue,
+                                    kind: kind, required: required.contains(key))
+        }
+    }
+}
+
+public enum ElicitationResponse: Hashable, Sendable {
+    case accept([String: JSONValue])
+    case decline
+    case cancel
+
+    public var json: JSONValue {
+        switch self {
+        case .accept(let content): return .object(["action": .string("accept"), "content": .object(content)])
+        case .decline: return .object(["action": .string("decline")])
+        case .cancel: return .object(["action": .string("cancel")])
+        }
+    }
+}
