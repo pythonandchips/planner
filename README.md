@@ -40,6 +40,7 @@ These ship with planner and are installed with `planner skills install`.
 - `writing-erb`: makes the agent test a condition once in ERB templates, with `if`/`else` around the element and each branch holding the complete markup for that case, while a condition used only once stays inline.
 - `writing-rspec`: makes the agent write spec descriptions that say what the code does, not how, in the present tense without "should", and use separate `expect` lines instead of `.and` matchers, and set up test objects with `let!` or `let` instead of in `before` blocks.
 - `writing-rspec-controller-specs`: makes the agent write Rails controller and request specs with the request on the first line of each example, the response status checked first, and one example per request.
+- `writing-todos`: makes the agent add todo items for later work to `docs/TODO.md` or a plan folder's `TODO.md` in at most three plain sentences, citing the iteration, findings, plan or review file they came from, and remove them when the work is done.
 
 ## Development
 
