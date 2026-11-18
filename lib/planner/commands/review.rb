@@ -9,6 +9,8 @@ module Planner
       # The files that can be reviewed. The plan number is in group 1, the findings number in group 2.
       SOURCE_NAME = /\A(?:PLAN-(\d+)|FINDINGS-(\d+)(?:-[a-z]+)?)\.md\z/
 
+      KINDS = 'PLAN-<N>.md or FINDINGS-<N>.md'
+
       def initialize(context)
         @context = context
       end
@@ -17,7 +19,7 @@ module Planner
         model, lens = parse(args)
         raise UsageError if model.empty? || args.size != 1
 
-        file = args.first
+        file = LatestFile.resolve(args.first, SOURCE_NAME, KINDS)
         match = source_match(file)
         template = match[1] ? PLAN_TEMPLATE : FINDINGS_TEMPLATE
         run_review(file, match[1] || match[2], template, model, read_lens(lens))
@@ -27,7 +29,7 @@ module Planner
 
       def source_match(file)
         match = File.basename(file).match(SOURCE_NAME)
-        raise Error, "#{file} is not a PLAN-<N>.md or FINDINGS-<N>.md file" unless match
+        raise Error, "#{file} is not a #{KINDS} file" unless match
         raise Error, "#{file} does not exist" unless File.file?(file)
 
         match

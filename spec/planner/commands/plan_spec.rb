@@ -102,4 +102,21 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
                               '`docs/plans/x/TABLE-OF-CONTENT.md` does not exist, read every `PLAN-*.md` and')
     expect(prompt).not_to include('Read the whole folder')
   end
+
+  describe 'given a plan folder' do
+    it 'uses the highest-numbered iteration file' do
+      write_iteration('ITERATION-001.md')
+      write_iteration('ITERATION-002.md')
+      command.call(['docs/plans/x'])
+
+      expect(agent.calls.first.last).to include('docs/plans/x/ITERATION-002.md', 'docs/plans/x/PLAN-002.md')
+    end
+
+    it 'raises Error when the folder has no iteration file' do
+      write_iteration('PLAN-001.md')
+
+      expect { command.call(['docs/plans/x']) }
+        .to raise_error(Planner::Error, 'docs/plans/x has no ITERATION-<N>.md file')
+    end
+  end
 end

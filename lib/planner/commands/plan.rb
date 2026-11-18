@@ -7,16 +7,18 @@ module Planner
       TEMPLATE = File.expand_path('../prompts/plan.md.erb', __dir__)
       ITERATION_NAME = /\AITERATION-(\d+)\.md\z/
 
+      KINDS = 'ITERATION-<N>.md'
+
       def initialize(context)
         @context = context
       end
 
       def call(args)
-        file = args.first
-        raise UsageError if file.nil? || file.empty?
+        raise UsageError if args.first.nil? || args.first.empty?
 
+        file = LatestFile.resolve(args.first, ITERATION_NAME, KINDS)
         number = File.basename(file)[ITERATION_NAME, 1]
-        raise Error, "#{file} is not an ITERATION-<N>.md file" unless number
+        raise Error, "#{file} is not an #{KINDS} file" unless number
         raise Error, "#{file} does not exist" unless File.file?(file)
 
         @context.agent.plan(prompt(file, number))

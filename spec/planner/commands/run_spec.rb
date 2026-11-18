@@ -141,7 +141,7 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
   end
 
   it 'raises Error for a missing file' do
-    expect { command.call(['nope.md']) }.to raise_error(Planner::Error, 'nope.md does not exist')
+    expect { command.call(['PLAN-009.md']) }.to raise_error(Planner::Error, 'PLAN-009.md does not exist')
   end
 
   describe '--print' do
@@ -190,7 +190,7 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
     end
 
     it 'raises Error for a missing file' do
-      expect { command.call(['-p', 'nope.md']) }.to raise_error(Planner::Error, 'nope.md does not exist')
+      expect { command.call(['-p', 'PLAN-009.md']) }.to raise_error(Planner::Error, 'PLAN-009.md does not exist')
     end
   end
 
@@ -200,5 +200,34 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
     expect(agent.calls.first[1]).to include('the stats and the table of',
                                             '`./TABLE-OF-CONTENT.md` if you updated it',
                                             'If `./TABLE-OF-CONTENT.md` exists')
+  end
+
+  describe 'given a plan folder' do
+    it 'runs the highest-numbered plan file' do
+      FileUtils.mkdir_p('x')
+      File.write('x/PLAN-002.md', 'the second plan')
+      File.write('x/ITERATION-003.md', 'x')
+      command.call(['x'])
+
+      expect(agent.calls.first[1]).to include('Implement the plan `x/PLAN-002.md`', 'the second plan')
+    end
+
+    it 'raises Error when the folder has no plan file' do
+      FileUtils.mkdir_p('y')
+
+      expect { command.call(['y']) }.to raise_error(Planner::Error, 'y has no PLAN-<N>.md file')
+    end
+  end
+
+  describe 'the file name' do
+    before { File.write('notes.md', 'x') }
+
+    it 'must be PLAN-<N>.md' do
+      expect { command.call(['notes.md']) }.to raise_error(Planner::Error, 'notes.md is not a PLAN-<N>.md file')
+    end
+
+    it 'must be PLAN-<N>.md with --print' do
+      expect { command.call(['-p', 'notes.md']) }.to raise_error(Planner::Error, 'notes.md is not a PLAN-<N>.md file')
+    end
   end
 end

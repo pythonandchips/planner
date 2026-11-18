@@ -280,4 +280,21 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
         .to raise_error(Planner::Error, 'nope.md is not an ITERATION-<N>.md file')
     end
   end
+
+  describe 'given a plan folder' do
+    it 'explores the highest-numbered iteration file' do
+      File.write('docs/plans/x/ITERATION-002.md', "the next brief\n")
+      command.call(['docs/plans/x'])
+
+      expect(call[1]).to include('docs/plans/x/ITERATION-002.md')
+      expect(call[3]).to eq('docs/plans/x/FINDINGS-002.md')
+    end
+
+    it 'raises Error when the folder has no iteration file' do
+      FileUtils.mkdir_p('docs/plans/y')
+
+      expect { command.call(['docs/plans/y']) }
+        .to raise_error(Planner::Error, 'docs/plans/y has no ITERATION-<N>.md file')
+    end
+  end
 end

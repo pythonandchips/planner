@@ -284,4 +284,29 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
         .to raise_error(Planner::Error, 'docs/plans/x/FINDINGS-009.md does not exist')
     end
   end
+
+  describe 'given a plan folder' do
+    it 'reviews the highest-numbered plan or findings file' do
+      File.write('docs/plans/x/FINDINGS-002.md', "the findings\n")
+      command.call(['docs/plans/x'])
+
+      expect(call[4]).to eq('docs/plans/x/FINDINGS-002.md')
+    end
+
+    it 'raises Error when the folder has no plan or findings file' do
+      FileUtils.mkdir_p('docs/plans/y')
+
+      expect { command.call(['docs/plans/y']) }
+        .to raise_error(Planner::Error, 'docs/plans/y has no PLAN-<N>.md or FINDINGS-<N>.md file')
+    end
+
+    it 'raises Error when a plan and findings file share the highest number' do
+      File.write('docs/plans/x/FINDINGS-001.md', "the findings\n")
+
+      expect { command.call(['docs/plans/x']) }.to raise_error(
+        Planner::Error,
+        'docs/plans/x has more than one latest file: FINDINGS-001.md, PLAN-001.md; give the file instead'
+      )
+    end
+  end
 end

@@ -3,7 +3,6 @@
 - `planner plan --model <model>`: the plan model is hardcoded to opus.
 - `--help`/`-h` (top level and per subcommand) should print usage and exit 0.
 - `planner new` should also create `ITERATION-001.md` in the new plan folder.
-- Validate the file name passed to `run` (`PLAN-*.md`).
 - Find the project root from the git top-level instead of cwd.
 - Add rules for run with commit discipline around content of commit message and PR body
 - Ship more skills under `lib/planner/skills` (for example running yarn commands).
@@ -12,5 +11,5 @@
 - Have plan ignore files that are gitignored for staging
 - revert iteration, undo the last iteration removing commits and any plan, findings or review files and update Table of content
 - Add a command for planner to launch a markdown reader. Possibly a web page
-- If a folder is given to a file rather than a command chose the highest numbered file. Eg. for `explore` or `plan` chose the highest iteration number
 - Change the plan to make the commit message an example not a specification. Allow the runner to invoke the command and write the message
+- Rewrite the content of `README.md` in full so it is accurate and consistent, rather than patching it one bullet at a time. From [PLAN-001.md](plans/202611181357-run-latest-file/PLAN-001.md).

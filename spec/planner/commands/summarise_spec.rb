@@ -215,4 +215,31 @@ RSpec.describe Planner::Commands::Summarise, :aggregate_failures do
         .to raise_error(Planner::Error, 'nope.md is not a PLAN-<N>.md, REVIEW-<N>.md or FINDINGS-<N>.md file')
     end
   end
+
+  describe 'given a plan folder' do
+    it 'summarises the highest-numbered file' do
+      File.write('docs/plans/x/FINDINGS-003.md', "the findings\n")
+      command.call(['docs/plans/x'])
+
+      expect(call[1]).to include('docs/plans/x/FINDINGS-003.md')
+      expect(call[3]).to eq('docs/plans/x/SUMMARY-003')
+    end
+
+    it 'raises Error when the folder has no suitable file' do
+      FileUtils.mkdir_p('docs/plans/y')
+
+      expect { command.call(['docs/plans/y']) }.to raise_error(
+        Planner::Error, 'docs/plans/y has no PLAN-<N>.md, REVIEW-<N>.md or FINDINGS-<N>.md file'
+      )
+    end
+
+    it 'raises Error when a plan and review share the highest number' do
+      File.write('docs/plans/x/REVIEW-002.md', "the review\n")
+
+      expect { command.call(['docs/plans/x']) }.to raise_error(
+        Planner::Error,
+        'docs/plans/x has more than one latest file: PLAN-002.md, REVIEW-002.md; give the file instead'
+      )
+    end
+  end
 end

@@ -16,11 +16,11 @@ module Planner
 
     USAGE = <<~TEXT
       usage: planner new [--dir <folder>] <given-name>
-             planner plan <iteration-file>
-             planner run [--model <model>] [--print] <plan-file>
-             planner review [--model <model>] [--lens <text>|-] <file>
-             planner explore [--model <model>] [--deep] <iteration-file>
-             planner summarise [--model <model>] [--brief <text>|-] <file>
+             planner plan <iteration-file|plan-folder>
+             planner run [--model <model>] [--print] <plan-file|plan-folder>
+             planner review [--model <model>] [--lens <text>|-] <file|plan-folder>
+             planner explore [--model <model>] [--deep] <iteration-file|plan-folder>
+             planner summarise [--model <model>] [--brief <text>|-] <file|plan-folder>
              planner toc [--model <model>] <plan-folder>
              planner skills <list|install> ...
     TEXT

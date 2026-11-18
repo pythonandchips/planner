@@ -8,6 +8,7 @@ module Planner
       TEMPLATE = File.expand_path('../prompts/explore.md.erb', __dir__)
       DEEP_TEMPLATE = File.expand_path('../prompts/explore_deep.md.erb', __dir__)
       ITERATION_NAME = /\AITERATION-(\d+)\.md\z/
+      KINDS = 'ITERATION-<N>.md'
       PARTIALS = %w[findings_structure check_in stats summary_for_user].freeze
 
       def initialize(context)
@@ -18,9 +19,9 @@ module Planner
         model, deep = parse(args)
         raise UsageError if model.empty? || args.size != 1
 
-        file = args.first
+        file = LatestFile.resolve(args.first, ITERATION_NAME, KINDS)
         number = File.basename(file)[ITERATION_NAME, 1]
-        raise Error, "#{file} is not an ITERATION-<N>.md file" unless number
+        raise Error, "#{file} is not an #{KINDS} file" unless number
         raise Error, "#{file} does not exist" unless File.file?(file)
 
         hand_off(file, findings_file(file, number), model, deep)

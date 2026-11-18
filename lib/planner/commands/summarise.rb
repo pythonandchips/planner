@@ -8,6 +8,8 @@ module Planner
       # The files that can be summarised. The number is in whichever group matched.
       SOURCE_NAME = /\A(?:PLAN-(\d+)|(?:REVIEW|FINDINGS)-(\d+)(?:-[a-z]+)?)\.md\z/
 
+      KINDS = 'PLAN-<N>.md, REVIEW-<N>.md or FINDINGS-<N>.md'
+
       def initialize(context)
         @context = context
       end
@@ -16,7 +18,7 @@ module Planner
         model, brief = parse(args)
         raise UsageError if model.empty? || args.size != 1
 
-        file = args.first
+        file = LatestFile.resolve(args.first, SOURCE_NAME, KINDS)
         number = source_number(file)
         raise Error, "#{file} does not exist" unless File.file?(file)
 
@@ -27,7 +29,7 @@ module Planner
 
       def source_number(file)
         number = File.basename(file).match(SOURCE_NAME)&.captures&.find(&:itself)
-        raise Error, "#{file} is not a PLAN-<N>.md, REVIEW-<N>.md or FINDINGS-<N>.md file" unless number
+        raise Error, "#{file} is not a #{KINDS} file" unless number
 
         number
       end
