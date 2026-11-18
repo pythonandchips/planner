@@ -2,9 +2,11 @@
 
 module Planner
   module Commands
-    # Creates a plan folder under docs/plans, or the folder given with --dir, and prints its path.
+    # Creates a plan folder under docs/plans, or the folder given with --dir, with an empty
+    # ITERATION-001.md, and prints the file's path.
     class New
       DEFAULT_DIR = 'docs/plans'
+      ITERATION_FILE = 'ITERATION-001.md'
 
       def initialize(context)
         @context = context
@@ -21,11 +23,16 @@ module Planner
         path = @context.root / folder
         raise Error, "#{path} already exists" if path.directory?
 
-        FileUtils.mkdir_p(path)
-        @context.stdout.puts folder
+        create(path)
+        @context.stdout.puts folder / ITERATION_FILE
       end
 
       private
+
+      def create(path)
+        FileUtils.mkdir_p(path)
+        (path / ITERATION_FILE).write('')
+      end
 
       # Removes the options from args and returns the chosen folder.
       def parse(args)

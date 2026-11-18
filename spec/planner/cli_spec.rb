@@ -53,6 +53,6 @@ RSpec.describe Planner::CLI, :aggregate_failures do
 
   it 'returns 0 on success' do
     expect(cli.call(%w[new Hello])).to eq(0)
-    expect(stdout.string).to eq("docs/plans/202610271216-hello\n")
+    expect(stdout.string).to eq("docs/plans/202610271216-hello/ITERATION-001.md\n")
   end
 end

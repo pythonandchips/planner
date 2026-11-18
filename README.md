@@ -14,7 +14,7 @@ Run `mise reshim` afterwards if you use mise shims.
 
 Run from the project root.
 
-- `planner new [--dir <folder>] <given-name>`: create a plan folder under `docs/plans/`, or under `--dir` (`-d`) relative to the project root, and print its path.
+- `planner new [--dir <folder>] <given-name>`: create a plan folder under `docs/plans/`, or under `--dir` (`-d`) relative to the project root, with an empty `ITERATION-001.md` in it, and print the path of that file.
 - `planner plan <iteration-file|plan-folder>`: take an `ITERATION-<N>.md` file (or a plan folder, to use its highest-numbered `ITERATION` file) and have the agent write the matching `PLAN-<N>.md` next to it; it asks whether the plan should end in a commit.
 - `planner run [--model <model>] [--print] <plan-file|plan-folder>`: have the agent implement a plan file exactly (or, given a plan folder, its highest-numbered `PLAN` file), fixing failing verification steps and stopping to explain if it can't, and append deviations and stats to the plan file, committing only when the plan says to (default model `sonnet`); `--print` (`-p`) prints the prompt, model and allowed tools as JSON instead, for running with your own `claude` command.
 - `planner review [--model <model>] [--lens <text>|-] <file|plan-folder>`: have the agent review a `PLAN-<N>.md` or `FINDINGS-<N>.md` file (or, given a plan folder, its highest-numbered `PLAN` or `FINDINGS` file) against the code and write a plain-English `REVIEW-<N>.md` next to it, then summarise it in the session under the same headings; `--lens` narrows the review, `--lens -` reads the lens from stdin; ask in the session and it applies suggestions to the plan and marks each one `**Applied:**` in the review (default model `opus`).
@@ -25,8 +25,8 @@ Run from the project root.
 - `planner skills install [--global] [--only <slug>,...]`: copy the skills into `.claude/skills`, or `~/.claude/skills` with `--global`; asks before replacing a skill that has changed.
 
 ```sh
-planner new "Add login"  # => docs/plans/202610271216-add-login
-planner new --dir work/plans "Add login"  # => work/plans/202610271216-add-login
+planner new "Add login"  # => docs/plans/202610271216-add-login/ITERATION-001.md
+planner new --dir work/plans "Add login"  # => work/plans/202610271216-add-login/ITERATION-001.md
 ```
 
 ## Skills
