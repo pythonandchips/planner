@@ -13,3 +13,4 @@
 - Change the plan to make the commit message an example not a specification. Allow the runner to invoke the command and write the message
 - Rewrite the content of `README.md` in full so it is accurate and consistent, rather than patching it one bullet at a time. From [PLAN-001.md](plans/202611181357-run-latest-file/PLAN-001.md).
 - refactor the commands so they take a model rather than args. This can then also be used to find the file so the commands don't need to
+- add a command that sets the current folder for planner so that when you run `plan`, `review` etc it defaults to the set folder
