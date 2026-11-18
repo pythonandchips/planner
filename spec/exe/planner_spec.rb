@@ -16,12 +16,12 @@ RSpec.describe 'exe/planner', :aggregate_failures do # rubocop:disable RSpec/Des
     expect(err).to eq(Planner::CLI::USAGE)
   end
 
-  it 'creates a plan folder with new' do
+  it 'creates a plan folder with an ITERATION-001.md with new' do
     out, _err, status = planner('new', 'Hello World')
 
     expect(status.exitstatus).to eq(0)
-    expect(out).to match(%r{\Adocs/plans/\d{12}-hello-world\n\z})
-    expect(File.directory?(out.chomp)).to be(true)
+    expect(out).to match(%r{\Adocs/plans/\d{12}-hello-world/ITERATION-001\.md\n\z})
+    expect(File.file?(out.chomp)).to be(true)
   end
 
   it 'lists the shipped skills' do

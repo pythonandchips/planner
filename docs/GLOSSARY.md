@@ -1,6 +1,6 @@
 # Glossary
 
-- **plan folder**: A directory at `docs/plans/<YYYYMMDDHHMM>-<slug>/` that holds the iteration and plan files for one piece of work. Created by `planner new`.
+- **plan folder**: A directory at `docs/plans/<YYYYMMDDHHMM>-<slug>/` that holds the iteration and plan files for one piece of work. Created by `planner new`, with an empty `ITERATION-001.md` in it.
 - **iteration file**: `ITERATION-<NNN>.md`. The brief for one iteration of work.
 - **plan file**: `PLAN-<NNN>.md`. The implementation plan written from an iteration file by `planner plan`. Its Commit section says what to commit, or says not to commit, as the user chose when planning.
 - **review file**: `REVIEW-<NNN>.md`, or `REVIEW-<NNN>-<letter>.md` for a later review with the same number. A plain-English review of a plan or findings file, written by `planner review`. When the user has the review session apply suggestions to the reviewed file, each applied item gets an `**Applied:**` line.
