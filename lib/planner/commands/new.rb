@@ -2,7 +2,8 @@
 
 module Planner
   module Commands
-    # Creates a plan folder under docs/plans, or the folder given with --dir, and prints its path.
+    # Creates a plan folder under docs/plans, or the folder given with --dir, with an empty
+    # ITERATION-001.md, and prints its path.
     class New
       DEFAULT_DIR = 'docs/plans'
 
@@ -18,14 +19,18 @@ module Planner
         raise UsageError if name.nil? || name.empty?
 
         folder = plan_folder(dir, name)
-        path = @context.root / folder
-        raise Error, "#{path} already exists" if path.directory?
-
-        FileUtils.mkdir_p(path)
+        create(@context.root / folder)
         @context.stdout.puts folder
       end
 
       private
+
+      def create(path)
+        raise Error, "#{path} already exists" if path.directory?
+
+        FileUtils.mkdir_p(path)
+        FileUtils.touch(path / 'ITERATION-001.md')
+      end
 
       # Removes the options from args and returns the chosen folder.
       def parse(args)

@@ -18,6 +18,12 @@ RSpec.describe Planner::Commands::New, :aggregate_failures do
     expect(stdout.string).to eq("docs/plans/202610271216-hello-world\n")
   end
 
+  it 'creates an empty first iteration file in the plan folder' do
+    command.call(['Hello'])
+
+    expect(root.join('docs/plans/202610271216-hello/ITERATION-001.md').read).to eq('')
+  end
+
   it 'ignores extra args' do
     command.call(%w[Hello extra])
 
