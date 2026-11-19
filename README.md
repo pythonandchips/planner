@@ -1,33 +1,112 @@
 # planner
 
-Creates plan folders and hands iteration files and plan files to an agent.
+planner manages a four-step workflow for working with a coding agent. Start with `planner new <name>`, which creates a plan folder with an empty `ITERATION-001.md`, and write the task's brief in it.
+
+1. **Explore** (optional): an agent explores the codebase and gathers context for the task. `planner explore`
+2. **Plan**: give the agent a specific task and shape the solution. `planner plan`
+3. **Review** (optional): an agent reviews the plan and recommends improvements, optionally through a lens such as security or performance. `planner review`
+4. **Run**: apply the plan to the codebase. `planner run`
 
 ## Install
 
 ```sh
+git clone https://github.com/pythonandchips/planner.git
+cd planner
 bundle install && bundle exec rake install
 ```
 
-Run `mise reshim` afterwards if you use mise shims.
-
 ## Usage
 
-Run from the project root.
+Run from the project root. A command that takes a file also takes a plan folder, and then uses the folder's latest file of the kinds it accepts.
 
-- `planner new [--dir <folder>] <given-name>`: create a plan folder under `docs/plans/`, or under `--dir` (`-d`) relative to the project root, with an empty `ITERATION-001.md` in it, and print the path of that file.
-- `planner plan <iteration-file|plan-folder>`: take an `ITERATION-<N>.md` file (or a plan folder, to use its highest-numbered `ITERATION` file) and have the agent write the matching `PLAN-<N>.md` next to it; it asks whether the plan should end in a commit.
-- `planner run [--model <model>] [--print] <plan-file|plan-folder>`: have the agent implement a plan file exactly (or, given a plan folder, its highest-numbered `PLAN` file), fixing failing verification steps and stopping to explain if it can't, and append deviations and stats to the plan file, committing only when the plan says to (default model `sonnet`); `--print` (`-p`) prints the prompt, model and allowed tools as JSON instead, for running with your own `claude` command.
-- `planner review [--model <model>] [--lens <text>|-] <file|plan-folder>`: have the agent review a `PLAN-<N>.md` or `FINDINGS-<N>.md` file (or, given a plan folder, its highest-numbered `PLAN` or `FINDINGS` file) against the code and write a plain-English `REVIEW-<N>.md` next to it, then summarise it in the session under the same headings; `--lens` narrows the review, `--lens -` reads the lens from stdin; ask in the session and it applies suggestions to the plan and marks each one `**Applied:**` in the review (default model `opus`).
-- `planner explore [--model <model>] [--deep] <iteration-file|plan-folder>`: have the agent answer an `ITERATION-<N>.md` brief (or, given a plan folder, the highest-numbered `ITERATION` file) by exploring the code or data in rounds, asking you about anything unclear and checking in after each round so you can steer it or finish, and write a read-only `FINDINGS-<N>.md` next to it that opens with a summary and advisory recommendations, then summarise it in the session (default model `opus`); `--deep` (`-d`) makes it a deep exploration: once you have clarified the brief and replied `Make it so`, the agent works without your input for up to 90 minutes at a time, searching the web and handing research and each spike or competing implementation to its own spike subagents, each in a git worktree, with code committed on a branch named after the plan folder, with shell commands sandboxed with no network access and no MCP tools, then pushes those branches to `origin`, lists them in the findings with the commands to clean them up, and checks in as usual.
-- `planner summarise [--model <model>] [--brief <text>|-] <file|plan-folder>`: have the agent summarise a `PLAN-<N>.md`, `REVIEW-<N>.md` or `FINDINGS-<N>.md` file (or, given a plan folder, its highest-numbered `PLAN`, `REVIEW` or `FINDINGS` file) as the brief asks, in any format it can make (markdown, a sequence diagram, a slide deck, an animated GIF, an audio recording ...), referencing anything it uses from outside the file; the summary comes back in the session unless the brief asks for it on disk, when it is written once to `SUMMARY-<N>.<ext>`, or a `SUMMARY-<N>/` folder, next to the file; `--brief -` reads the brief from stdin, and with no brief you get a short markdown summary in the session (default model `opus`).
-- `planner toc [--model <model>] <plan-folder>`: have the agent write `TABLE-OF-CONTENT.md` in a plan folder, replacing any existing one: a short summary of the work, then the files and folders grouped by number, each group with a one-line summary and, for plans, whether they are completed. Once it exists, `planner plan`, `explore`, `review`, `run` and `summarise` keep it up to date, and `planner plan` and `explore` read it to choose which earlier plans and findings to read (default model `haiku`).
-- `planner skills list`: list the skills planner ships.
-- `planner skills install [--global] [--only <slug>,...]`: copy the skills into `.claude/skills`, or `~/.claude/skills` with `--global`; asks before replacing a skill that has changed.
+### planner new
+
+```sh
+planner new [--dir <folder>] <given-name>
+```
+
+Creates a plan folder under `docs/plans/` with an empty `ITERATION-001.md` in it, and prints the file's path.
+
+- `--dir <folder>`, `-d`: create the plan folder under this folder, relative to the project root.
 
 ```sh
 planner new "Add login"  # => docs/plans/202610271216-add-login/ITERATION-001.md
 planner new --dir work/plans "Add login"  # => work/plans/202610271216-add-login/ITERATION-001.md
 ```
+
+### planner explore
+
+```sh
+planner explore [--model <model>] [--deep] <iteration-file|plan-folder>
+```
+
+Has the agent answer an `ITERATION-<N>.md` brief by exploring the code or data in rounds, checking in with you after each, and write a read-only `FINDINGS-<N>.md` next to it.
+
+- `--model <model>`, `-m`: default `opus`.
+- `--deep`, `-d`: once you have clarified the brief and replied `Make it so`, the agent works on its own, researching and building spikes, and lists the spikes' branches in the findings.
+
+### planner plan
+
+```sh
+planner plan <iteration-file|plan-folder>
+```
+
+Has the agent write the `PLAN-<N>.md` for an `ITERATION-<N>.md` next to it. It asks you about anything left open, including whether the plan should end in a commit.
+
+### planner review
+
+```sh
+planner review [--model <model>] [--lens <text>|-] <file|plan-folder>
+```
+
+Has the agent review a `PLAN-<N>.md` or `FINDINGS-<N>.md` against the code and write `REVIEW-<N>.md` next to it. Ask in the session and it applies its suggestions to the plan.
+
+- `--model <model>`, `-m`: default `opus`.
+- `--lens <text>`, `-l`: narrow the review, for example to security or performance; `--lens -` reads it from stdin.
+
+### planner run
+
+```sh
+planner run [--model <model>] [--print] <plan-file|plan-folder>
+```
+
+Has the agent implement a `PLAN-<N>.md` exactly, fixing failing verification steps or stopping to explain, then append deviations and stats to the plan. It commits only when the plan says to.
+
+- `--model <model>`, `-m`: default `sonnet`.
+- `--print`, `-p`: print the prompt, model and allowed tools as JSON instead, to run with your own `claude` command.
+
+### planner summarise
+
+```sh
+planner summarise [--model <model>] [--brief <text>|-] <file|plan-folder>
+```
+
+Has the agent summarise a `PLAN-<N>.md`, `REVIEW-<N>.md` or `FINDINGS-<N>.md` in the format the brief asks for (markdown, a diagram, a slide deck ...). The summary comes back in the session, or is written to `SUMMARY-<N>.<ext>` next to the file when the brief asks for it on disk.
+
+- `--model <model>`, `-m`: default `opus`.
+- `--brief <text>`, `-b`: what to summarise and how; `--brief -` reads it from stdin. Without it you get a short markdown summary.
+
+### planner toc
+
+```sh
+planner toc [--model <model>] <plan-folder>
+```
+
+Has the agent write `TABLE-OF-CONTENT.md` in a plan folder, replacing any existing one.
+
+- `--model <model>`, `-m`: default `haiku`.
+
+### planner skills
+
+```sh
+planner skills list
+planner skills install [--global] [--only <slug>,...]
+```
+
+`list` lists the skills planner ships. `install` copies them into `.claude/skills`, asking before replacing a skill that has changed.
+
+- `--global`: install into `~/.claude/skills` instead.
+- `--only <slug>,...`: install only these skills.
 
 ## Skills
 
@@ -44,3 +123,8 @@ These ship with planner and are installed with `planner skills install`.
 ```sh
 bundle exec rake  # specs, then RuboCop
 ```
+
+## Contributing
+
+- Every pull request must include an iteration file and a plan file created with planner, in their plan folder under `docs/plans/`.
+- Run `bundle exec rake` before opening it.
