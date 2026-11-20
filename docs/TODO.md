@@ -15,3 +15,5 @@
 - refactor the commands so they take a model rather than args. This can then also be used to find the file so the commands don't need to
 - add a command that sets the current folder for planner so that when you run `plan`, `review` etc it defaults to the set folder
 - Add a github url to a file which will mean the todo's and contexts can be kept on a card. There could be multiple cards per folder so need to think more on how that will sync
+- [Skill] No comments unless appoved by me
+- Ensure all files output a estimate token usage

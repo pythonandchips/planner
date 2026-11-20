@@ -1,0 +1,1 @@
+At times the plan command is adding manual verification steps that I need to take when in the browser. I want the plan to command to always check with me before writing a manual verification as it could be covered by post run verification steps that happen outside the agent

@@ -53,6 +53,16 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
     expect(prompt).to include('`Do not commit. Do not stage any files. Leave every change in the working tree.`')
   end
 
+  it 'checks with the user before adding a manual verification step' do # rubocop:disable RSpec/ExampleLength
+    write_iteration('ITERATION-001.md')
+    command.call(['docs/plans/x/ITERATION-001.md'])
+
+    prompt = agent.calls.first.last
+    expect(prompt).to include('4. **Check with the user before adding a manual verification step.**')
+    expect(prompt).to include('a `Manual check: <step>` row (`Include` or `Leave out`) in the Decisions')
+    expect(prompt).to include('5. **End the plan with a Commit section.**')
+  end
+
   it 'zero-pads the plan number' do
     write_iteration('ITERATION-3.md')
 
@@ -86,7 +96,7 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
     write_iteration('ITERATION-001.md')
     command.call(['docs/plans/x/ITERATION-001.md'])
 
-    expect(agent.calls.first.last).to include('5. **Update the table of contents.**',
+    expect(agent.calls.first.last).to include('6. **Update the table of contents.**',
                                               'If `docs/plans/x/TABLE-OF-CONTENT.md` exists, list',
                                               '## Table of contents')
   end

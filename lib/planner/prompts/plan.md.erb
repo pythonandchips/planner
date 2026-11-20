@@ -21,7 +21,18 @@ Turn the brief `<%= iteration_file %>` into an implementation plan
 3. **Write `<%= plan_file %>`.** Follow the structure below. Keep it concise and
    unambiguous. A developer should be able to execute it without needing to ask a
    follow-up question.
-4. **End the plan with a Commit section.** Once every other question has an answer,
+4. **Check with the user before adding a manual verification step.** A manual
+   step is any Verification step a person does rather than the agent that runs
+   the plan, such as checking a page in a browser or starting a real session.
+   Prefer an automated check (a spec or a command), and propose a manual step
+   only when no automated check covers it. Once every other question in step 2
+   has an answer, and before you ask about committing in step 5, ask the user
+   about each manual step you want to add, because verification the user runs
+   outside the agent after the run may already cover it. Add only the steps the
+   user approves, and leave the others out of the plan entirely. Record each as
+   a `Manual check: <step>` row (`Include` or `Leave out`) in the Decisions
+   table. If you have no manual step to propose, do not ask.
+5. **End the plan with a Commit section.** Once every other question has an answer,
    and before you write `<%= plan_file %>`, ask the user whether they want this plan's
    change committed. Ask every time, even if an earlier plan in the folder answered
    it. Record the answer as a `Commit` row (`Yes` or `No`) in the Decisions table.
@@ -31,7 +42,7 @@ Turn the brief `<%= iteration_file %>` into an implementation plan
      it in what to stage.
    - If no, write exactly this as the whole body of the Commit section:
      `Do not commit. Do not stage any files. Leave every change in the working tree.`
-5. **Update the table of contents.** After writing `<%= plan_file %>`, update
+6. **Update the table of contents.** After writing `<%= plan_file %>`, update
    `<%= toc_file %>` as described under "Table of contents".
 
 ## Plan structure
@@ -64,7 +75,7 @@ Match the convention already used by `PLAN-*.md` files elsewhere in `<%= plans_d
 ## Commit
 
 <what to stage and a suggested commit message, contingent on verification passing, or the
-do-not-commit text from step 4>
+do-not-commit text from step 5>
 ```
 
 The "Decisions" table records every question you asked and how the user answered it.
