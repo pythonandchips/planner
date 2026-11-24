@@ -5,6 +5,7 @@ module Planner
   class CLI
     COMMANDS = {
       'new' => Commands::New,
+      'next' => Commands::Next,
       'plan' => Commands::Plan,
       'run' => Commands::Run,
       'review' => Commands::Review,
@@ -16,6 +17,7 @@ module Planner
 
     USAGE = <<~TEXT
       usage: planner new [--dir <folder>] <given-name>
+             planner next <plan-folder>
              planner plan <iteration-file|plan-folder>
              planner run [--model <model>] [--print] <plan-file|plan-folder>
              planner review [--model <model>] [--lens <text>|-] <file|plan-folder>

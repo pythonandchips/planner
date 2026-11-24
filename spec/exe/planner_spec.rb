@@ -24,6 +24,15 @@ RSpec.describe 'exe/planner', :aggregate_failures do # rubocop:disable RSpec/Des
     expect(File.file?(out.chomp)).to be(true)
   end
 
+  it 'creates the next iteration file with next' do
+    out, _err, _status = planner('new', 'Next Test')
+    out, _err, status = planner('next', File.dirname(out.chomp))
+
+    expect(status.exitstatus).to eq(0)
+    expect(out).to match(%r{\Adocs/plans/\d{12}-next-test/ITERATION-002\.md\n\z})
+    expect(File.file?(out.chomp)).to be(true)
+  end
+
   it 'lists the shipped skills' do
     out, _err, status = planner('skills', 'list')
 

@@ -1,6 +1,6 @@
 # planner
 
-planner manages a four-step workflow for working with a coding agent. Start with `planner new <name>`, which creates a plan folder with an empty `ITERATION-001.md`, and write the task's brief in it.
+planner manages a four-step workflow for working with a coding agent. Start with `planner new <name>`, which creates a plan folder with an empty `ITERATION-001.md`, and write the task's brief in it. For each later iteration, `planner next <plan-folder>` creates the next empty `ITERATION-<NNN>.md`.
 
 1. **Explore** (optional): an agent explores the codebase and gathers context for the task. `planner explore`
 2. **Plan**: give the agent a specific task and shape the solution. `planner plan`
@@ -32,6 +32,18 @@ Creates a plan folder under `docs/plans/` with an empty `ITERATION-001.md` in it
 ```sh
 planner new "Add login"  # => docs/plans/202610271216-add-login/ITERATION-001.md
 planner new --dir work/plans "Add login"  # => work/plans/202610271216-add-login/ITERATION-001.md
+```
+
+### planner next
+
+```sh
+planner next <plan-folder>
+```
+
+Creates the next empty `ITERATION-<NNN>.md` in a plan folder, numbered one past the highest `ITERATION-NNN.md` there (or `001` when there is none), and prints the file's path.
+
+```sh
+planner next docs/plans/202610271216-add-login  # => docs/plans/202610271216-add-login/ITERATION-002.md
 ```
 
 ### planner explore
