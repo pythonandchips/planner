@@ -39,7 +39,12 @@ Turn the brief `<%= iteration_file %>` into an implementation plan
    - If yes, state exactly what to stage and give a suggested commit message, with
      the instruction that the commit happens only after the plan's change has
      actually been made (implemented and verified), never before. If `<%= toc_file %>` exists, list
-     it in what to stage.
+     it in what to stage. End the suggested message with a blank line, then
+     `Assisted-by: <agent> (<model>, plan)`, taking the agent and model from your
+     own system context, for example `Assisted-by: Claude Code (Claude Opus 5.5, plan)`.
+     If you cannot tell what they are, ask the user. Do not guess. Add no other
+     `Assisted-by:` or `Co-Authored-By:` line, because the review and run agents
+     add their own.
    - If no, write exactly this as the whole body of the Commit section:
      `Do not commit. Do not stage any files. Leave every change in the working tree.`
 6. **Update the table of contents.** After writing `<%= plan_file %>`, update

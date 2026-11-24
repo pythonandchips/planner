@@ -129,6 +129,12 @@ RSpec.describe Planner::Commands::Review, :aggregate_failures do
                                 "Applied to `docs/plans/x/PLAN-001.md` and marked in\n`docs/plans/x/REVIEW-001.md`:")
     end
 
+    it 'adds its attribution line to the plan commit message' do
+      expect(prompt).to include('"Applying suggestions", "Attribution" and', "## Attribution\n\nAfter writing",
+                                "`Assisted-by: <agent> (<model>, review)`\n", 'Add it even when an earlier',
+                                '"Do not commit.", add nothing.')
+    end
+
     it 'updates the table of contents when it exists' do
       expect(prompt).to include('If `docs/plans/x/TABLE-OF-CONTENT.md` exists',
                                 'Never use them to inform the review.',

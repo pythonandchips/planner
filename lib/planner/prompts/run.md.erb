@@ -56,6 +56,20 @@ and keep the output as the start time.
    anything. Skip the Commit step and leave every
    change, including `<%= plan_file %>` and
    `<%= toc_file %>`, unstaged.
+9. When you commit, start from the plan's suggested
+   commit message. Keep every `Assisted-by:` line
+   already in it, in order, and add your own after
+   them: `Assisted-by: <agent> (<model>, run)`.
+   Take the agent and model from your own system
+   context, for example
+   `Assisted-by: Claude Code (Claude Sonnet 5.5, run)`.
+   If you cannot tell what they are, ask the user.
+   Do not guess. When the message has no
+   `Assisted-by:` line, add yours after its last line
+   with a blank line before it. These lines replace
+   the single `Assisted-by:` trailer of the
+   `commit-message` skill. Follow its other rules,
+   and do not add a `Co-Authored-By:` line.
 
 ## Deviations
 

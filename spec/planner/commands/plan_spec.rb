@@ -63,6 +63,14 @@ RSpec.describe Planner::Commands::Plan, :aggregate_failures do
     expect(prompt).to include('5. **End the plan with a Commit section.**')
   end
 
+  it 'ends the suggested commit message with the plan agent attribution' do
+    write_iteration('ITERATION-001.md')
+    command.call(['docs/plans/x/ITERATION-001.md'])
+
+    expect(agent.calls.first.last).to include('`Assisted-by: <agent> (<model>, plan)`, taking the agent and model',
+                                              '`Assisted-by:` or `Co-Authored-By:` line, because the review and run')
+  end
+
   it 'zero-pads the plan number' do
     write_iteration('ITERATION-3.md')
 

@@ -82,6 +82,13 @@ RSpec.describe Planner::Commands::Run, :aggregate_failures do
                                 '`./TABLE-OF-CONTENT.md`, unstaged.')
     end
 
+    it 'keeps the plan and review attribution and adds its own' do
+      expect(prompt).to include("9. When you commit, start from the plan's suggested",
+                                'them: `Assisted-by: <agent> (<model>, run)`.',
+                                'the single `Assisted-by:` trailer of the',
+                                'and do not add a `Co-Authored-By:` line.')
+    end
+
     it 'appends the stats to the plan file' do
       expect(prompt).to include('end of `PLAN-001.md`, below everything already',
                                 "---\n\n## Stats\n\n| Field | Value |")

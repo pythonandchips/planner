@@ -11,10 +11,12 @@ contents". Never use them to inform the review.
 
 1. Do not modify repository files, except the plan
    and the table of contents as described under
-   "Applying suggestions" and "Table of contents".
+   "Applying suggestions", "Attribution" and
+   "Table of contents".
 2. You may write only `<%= review_file %>`,
    `<%= source_file %>` when the user asks you to
-   apply suggestions, and `<%= toc_file %>` as
+   apply suggestions or as described under
+   "Attribution", and `<%= toc_file %>` as
    described under "Table of contents".
 3. Use read-only exploration only.
 4. Focus on concrete findings with evidence.
@@ -62,6 +64,27 @@ Write "None." under a findings section with nothing in it.
 After writing `<%= review_file %>`, update
 `<%= toc_file %>` as described under "Table of
 contents".
+
+## Attribution
+
+After writing `<%= review_file %>` and before
+updating `<%= toc_file %>`, add one line to the
+suggested commit message in the Commit section of
+`<%= source_file %>`:
+
+`Assisted-by: <agent> (<model>, review)`
+
+Take the agent and model from your own system
+context, for example
+`Assisted-by: Claude Code (Claude Opus 5.5, review)`.
+If you cannot tell what they are, ask the user. Do
+not guess. Put the line straight after the last
+`Assisted-by:` line in the message. When the message
+has none, put it after the message's last line, with
+a blank line before it. Add it even when an earlier
+review has added one, and change nothing else in
+the plan. If the Commit section says
+"Do not commit.", add nothing.
 
 ## Summary for the user
 
