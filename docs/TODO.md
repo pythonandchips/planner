@@ -17,3 +17,5 @@
 - Add a github url to a file which will mean the todo's and contexts can be kept on a card. There could be multiple cards per folder so need to think more on how that will sync
 - [Skill] No comments unless appoved by me
 - Ensure all files output a estimate token usage
+- Add an option for creating output as html. This will require explore, plan, review, summarise and toc to be able to ingest html
+- Add a review with judges command that will use `pi` to produce 3 review files. once the files are created have claude opus combine and provide updates. 
