@@ -108,8 +108,12 @@ RSpec.describe Planner::Agents::Claude do
                                                                  "git log -1 --format='%h %s'")
     end
 
-    it 'accepts file edits, then passes the prompt last' do
-      expect(argv[8..]).to eq(['--permission-mode=acceptEdits', 'dig in'])
+    it 'leaves the permission mode to the user' do
+      expect(argv.grep(/\A--permission-m/)).to be_empty
+    end
+
+    it 'passes the prompt last' do
+      expect(argv[8..]).to eq(['dig in'])
     end
   end
 

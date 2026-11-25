@@ -51,7 +51,7 @@ module Planner
         @executor.call('claude', '--model', model, "--tools=#{EXPLORE_DEEP_TOOLS}",
                        "--allowedTools=Edit(#{findings_file}),Edit(#{toc_file}),WebFetch,WebSearch,Bash(#{push})",
                        '--disallowedTools=mcp__*', "--settings=#{JSON.generate(deep_settings(push))}",
-                       "--agents=#{JSON.generate(agents)}", '--permission-mode=acceptEdits', prompt)
+                       "--agents=#{JSON.generate(agents)}", prompt)
       end
 
       def summarise(prompt, model:, summary_base:, toc_file:)
