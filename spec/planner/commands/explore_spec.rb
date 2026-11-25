@@ -254,6 +254,21 @@ RSpec.describe Planner::Commands::Explore, :aggregate_failures do
                                 '`## Branches` section after `## Findings`, listing', 'git branch -D x-<NNN>',
                                 'never run them')
     end
+
+    it 'asks about worktrees first and records the answer' do
+      expect(prompt).to include('`Can this session use git worktrees?`',
+                                'there is no current branch, or there are changes',
+                                'them with `git stash -u`, and do not offer',
+                                'as a `Worktrees` row, `Yes` or `No`, in')
+    end
+
+    it 'without worktrees, works on one branch at a time in the main checkout and pushes nothing' do
+      expect(prompt).to include('## Working without worktrees', 'or hand one task at a time to a',
+                                '`git add <path>`. Never use `git add -A` or',
+                                '7. Never run a command that throws away changes', 'on the starting branch.',
+                                '8. Never push.', 'session cannot use worktrees, push nothing',
+                                '`git branch -D` line for each branch, and put')
+    end
   end
 
   describe 'errors' do

@@ -81,13 +81,18 @@ RSpec.describe Planner::Agents::Claude do
       )
     end
 
-    it 'defines the spike subagent in its own worktree' do # rubocop:disable RSpec/ExampleLength
+    it 'defines the spike subagent in its own worktree and spike_on_branch with no isolation' do # rubocop:disable RSpec/ExampleLength
       expect(JSON.parse(argv[7].delete_prefix('--agents='))).to eq(
         'spike' => { 'description' =>
                        'Answers one question or builds one approach to the brief in its own worktree, then reports.',
                      'prompt' => described_class::SPIKE_PROMPT,
                      'tools' => %w[Read Grep Glob Edit Write Bash WebFetch WebSearch],
-                     'model' => 'inherit', 'maxTurns' => 200, 'isolation' => 'worktree' }
+                     'model' => 'inherit', 'maxTurns' => 200, 'isolation' => 'worktree' },
+        'spike_on_branch' => { 'description' =>
+                                 'Takes one task about the brief on its own branch in the main checkout, then reports.',
+                               'prompt' => described_class::SPIKE_ON_BRANCH_PROMPT,
+                               'tools' => %w[Read Grep Glob Edit Write Bash WebFetch WebSearch],
+                               'model' => 'inherit', 'maxTurns' => 200 }
       )
     end
 
@@ -97,8 +102,14 @@ RSpec.describe Planner::Agents::Claude do
                                                        'Never remove a worktree or a branch, and never push.')
     end
 
-    it 'passes the prompt last' do
-      expect(argv[8..]).to eq(['dig in'])
+    it 'tells spike_on_branch to stay on its branch, stage files by path and never push' do
+      expect(described_class::SPIKE_ON_BRANCH_PROMPT).to include('Never switch branch, and never create or remove one.',
+                                                                 '`git add <path>`', 'Never push.',
+                                                                 "git log -1 --format='%h %s'")
+    end
+
+    it 'accepts file edits, then passes the prompt last' do
+      expect(argv[8..]).to eq(['--permission-mode=acceptEdits', 'dig in'])
     end
   end
 

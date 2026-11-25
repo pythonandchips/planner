@@ -55,7 +55,7 @@ planner explore [--model <model>] [--deep] <iteration-file|plan-folder>
 Has the agent answer an `ITERATION-<N>.md` brief by exploring the code or data in rounds, checking in with you after each, and write a read-only `FINDINGS-<N>.md` next to it.
 
 - `--model <model>`, `-m`: default `opus`.
-- `--deep`, `-d`: once you have clarified the brief and replied `Make it so`, the agent works on its own, researching and building spikes, and lists the spikes' branches in the findings.
+- `--deep`, `-d`: once you have clarified the brief and replied `Make it so`, the agent works on its own, researching and building spikes, and lists the spikes' branches in the findings. It first asks whether it can use git worktrees; if it cannot, it works on one local branch at a time in your checkout, hands work to at most one spike at a time, and pushes nothing.
 
 ### planner plan
 
