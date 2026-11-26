@@ -20,7 +20,7 @@
 - Add an option for creating output as html. This will require explore, plan, review, summarise and toc to be able to ingest html
 - Add a review with judges command that will use `pi` to produce 3 review files. once the files are created have claude opus combine and provide updates. 
 - Add an option for the outputs to be in html format
-- Add a command that will get the comments from a github PR and create an iteration file and then run the `plan` command to create an update
+- Keep organising `lib/planner` into domain boundaries: move the remaining top-level files (`latest_file.rb`, `table_of_content.rb`, `skill_catalog.rb`, `slug.rb`) and constants such as `Commands::Plan::ITERATION_NAME` into namespaces like `Iteration`, `Feedback` and `Tools`.
 
 ## Advised TODO.
 This list comes from a review of work done with the planner command.
@@ -32,7 +32,6 @@ This list comes from a review of work done with the planner command.
 - Let the plan agent make small mechanical choices, or ones the repo's conventions already settle, and list them as "Assumed" rows the user can override. The rule against making any decision fills Decisions tables with rows like "remove the blank line".
 - Tell the plan agent to check the expected values it writes into specs, for example with a quick script, or to describe the behaviour and let the run agent fill in the values. Literal expected values written by hand were the most common error that reviews found.
 - Have the plan agent suggest a skill or `CLAUDE.md` change when PR feedback corrects a repo convention. Tests that read the Unovis config were added in three plans and then deleted in a fourth, because nothing recorded the convention.
-- Pull PR review comments into the iteration file or plan when a brief points at a pull request, for example with a `planner feedback <pr>` command. The folder should make sense without GitHub.
 - Check with `git check-ignore` whether the plan folder is ignored, and render the plan and run prompts to match. When `docs/` is ignored, every plan explains this while the run prompt still says to stage the plan file and the table of contents.
 - Record real token usage and elapsed time in the stats instead of the agent's estimate, for example from Claude Code's JSON output or the session transcript. Most plans report "~60k (estimate)", and some elapsed times are too short to be true.
 - Add a "Skipped verification" row to the run stats for steps the user chose to skip. Plans recorded skipped rubocop and stylelint steps as free text outside the template.

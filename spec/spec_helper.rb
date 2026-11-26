@@ -64,6 +64,22 @@ class FakeAgent
   end
 end
 
+# Returns canned gh JSON and records the arguments it was called with.
+class FakeGh
+  attr_reader :calls
+
+  def initialize(view:, graphql:)
+    @view = view
+    @graphql = graphql
+    @calls = []
+  end
+
+  def json(*args)
+    @calls << args
+    args.first == 'pr' ? @view : @graphql
+  end
+end
+
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!

@@ -65,6 +65,16 @@ planner plan <iteration-file|plan-folder>
 
 Has the agent write the `PLAN-<N>.md` for an `ITERATION-<N>.md` next to it. It asks you about anything left open, including whether the plan should end in a commit.
 
+### planner feedback
+
+```sh
+planner feedback <plan-folder> <pr>
+```
+
+Writes a pull request's open review comments to the next `ITERATION-<NNN>.md` in a plan folder, prints the file's path, then plans it as `planner plan` does. It needs the [GitHub CLI](https://cli.github.com) (`gh`) installed and logged in; `<pr>` is a number, URL or branch, as `gh pr view` takes it.
+
+The file holds the unresolved inline threads that are not outdated, the review summaries and the conversation comments, each with its author, so the folder makes sense without GitHub. When there are none, it writes nothing.
+
 ### planner review
 
 ```sh

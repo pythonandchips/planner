@@ -7,6 +7,7 @@ module Planner
       'new' => Commands::New,
       'next' => Commands::Next,
       'plan' => Commands::Plan,
+      'feedback' => Commands::Feedback,
       'run' => Commands::Run,
       'review' => Commands::Review,
       'explore' => Commands::Explore,
@@ -19,6 +20,7 @@ module Planner
       usage: planner new [--dir <folder>] <given-name>
              planner next <plan-folder>
              planner plan <iteration-file|plan-folder>
+             planner feedback <plan-folder> <pr>
              planner run [--model <model>] [--print] <plan-file|plan-folder>
              planner review [--model <model>] [--lens <text>|-] <file|plan-folder>
              planner explore [--model <model>] [--deep] <iteration-file|plan-folder>
